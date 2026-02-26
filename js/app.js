@@ -1,24 +1,5 @@
-// ─── APP.JS v4 — Point d'entrée ───────────────────────────────────────────────
-
-async function init() {
-  UI.updateCD();
-  setInterval(UI.updateCD, 60000);
-  UI.showLoading(true);
-
-  const loaded = await Sync.load();
-
-  if (!loaded) {
-    // Sheets vide ou inaccessible → charger les données initiales
-    seedData();
-    // Pousser vers Sheets immédiatement
-    await Sync.save();
-  }
-
-  UI.showLoading(false);
-  Render.all();
-
-  // Auto-refresh toutes les 30s — protégé contre l'écrasement par sync.js
-  Sync.startAutoRefresh(30000);
+const hasFullData = window.S.tasks.length >= 57;
+if (!loaded || !hasFullData) {
+  seedData(); // force le rechargement des 57 tâches
+  await Sync.save(); // pousse vers Sheets
 }
-
-document.addEventListener('DOMContentLoaded', init);
