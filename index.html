@@ -423,7 +423,7 @@ const DEPTS = {
   "شؤون الطعام":{fr:"Nourriture",icon:"🍽️",color:"#92400e"}
 };
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbyucLOEiADFdLhtV7u3VUC0x9Othr8UTJoO09Nccbc_foHwmjJkMuamBRc1Pn5uJVqo_A/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyYmNOx8gv0ACzP2ohd7sVdbuNnPXY1u31CDo0YVZfKHkKgof96HqT3kgdwnPDxJuzAfQ/exec';
 let S={tasks:[],budget:[],venues:[],volunteers:[],providers:[],guests:[]};
 let isSaving = false;
 
@@ -535,23 +535,36 @@ async function save() {
     Taches: S.tasks, Budget: S.budget, Benevoles: S.volunteers,
     Prestataires: S.providers, Invites: S.guests, Lieux: S.venues
   };
-  try {
-    await Promise.all(Object.entries(map).map(([sheet, data]) =>
-      fetch(API_URL + '?action=write&sheet=' + sheet, {
-        method: 'POST',
-        body: JSON.stringify(data)
-      })
-    ));
-    const now = new Date().toLocaleTimeString('fr-FR');
-    document.getElementById('sync-st').textContent = '✅ Sync : ' + now;
-  } catch(e) {
+  let success = 0;
+  for (const [sheet, data] of Object.entries(map)) {
+    try {
+      const url = API_URL + '?action=write&sheet=' + sheet + '&data=' + encodeURIComponent(JSON.stringify(data));
+      // Méthode 1: fetch normal
+      const res = await fetch(url, { method: 'GET', mode: 'cors' });
+      if (res.ok) success++;
+    } catch(e1) {
+      try {
+        // Méthode 2: XMLHttpRequest
+        const url2 = API_URL + '?action=write&sheet=' + sheet + '&data=' + encodeURIComponent(JSON.stringify(data));
+        await new Promise((resolve) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', url2, true);
+          xhr.onload = xhr.onerror = resolve;
+          xhr.send();
+        });
+        success++;
+      } catch(e2) { console.error('Sheet ' + sheet + ' failed:', e2); }
+    }
+  }
+  isSaving = false;
+  if (success > 0) {
+    document.getElementById('sync-st').textContent = '✅ ' + new Date().toLocaleTimeString('fr-FR');
+    showToast('✅ ' + success + '/6 onglets synchronisés !', 'ok');
+  } else {
     document.getElementById('sync-st').textContent = '❌ Erreur sync';
-  } finally {
-    isSaving = false;
+    showToast('❌ Erreur — essaie dans Safari', 'err');
   }
 }
-
-// ── CHARGEMENT DEPUIS GOOGLE SHEETS ──
 async function load() {
   document.getElementById('sync-st').textContent = '⏳ Chargement...';
   const sheets = ['Taches','Budget','Benevoles','Prestataires','Invites','Lieux'];
