@@ -612,8 +612,9 @@ function exportCSV() {
 
 
 // ═══ SYNC ═══
-// ─── SYNC MODULE v4 ───────────────────────────────────────────────────────────
-// Fix CORS : GET no-cors par onglet + verrou isSyncing + protection load()
+// ─── SYNC MODULE v5 ───────────────────────────────────────────────────────────
+// POST avec Content-Type: text/plain → pas de preflight CORS
+// Apps Script accepte ce format sans bloquer
 // ─────────────────────────────────────────────────────────────────────────────
 
 const Sync = (() => {
@@ -630,32 +631,7 @@ const Sync = (() => {
     if (btn) btn.disabled = disabled;
   }
 
-  // ── Sauvegarde un seul onglet via GET (contourne CORS sur POST) ────────────
-  async function saveOneSheet(sheetName, data) {
-    const encoded = encodeURIComponent(JSON.stringify(data));
-    const url = window.API_URL + '?action=write&sheet=' + sheetName + '&data=' + encoded;
-    try {
-      // no-cors : fire-and-forget, pas de réponse lisible mais ça passe
-      await fetch(url, { method: 'GET', mode: 'no-cors' });
-      return true;
-    } catch(e) {
-      try {
-        // Fallback XHR
-        await new Promise(resolve => {
-          const xhr = new XMLHttpRequest();
-          xhr.open('GET', url, true);
-          xhr.onload = xhr.onerror = () => resolve();
-          xhr.send();
-        });
-        return true;
-      } catch(e2) {
-        console.error('[Sync] saveOneSheet failed: ' + sheetName, e2);
-        return false;
-      }
-    }
-  }
-
-  // ── SAVE → envoie chaque onglet séparément ────────────────────────────────
+  // ── SAVE via POST text/plain (pas de preflight = pas de CORS) ─────────────
   async function save() {
     if (isSyncing) { pendingSave = true; return; }
     isSyncing = true;
@@ -663,31 +639,58 @@ const Sync = (() => {
     setBtn(true);
     setStatus('⏳ Sauvegarde...');
 
-    const sheets = {
-      Taches:       window.S.tasks,
-      Budget:       window.S.budget,
-      Benevoles:    window.S.volunteers,
-      Prestataires: window.S.providers,
-      Invites:      window.S.guests,
-      Lieux:        window.S.venues,
-    };
+    const payload = JSON.stringify({
+      action: 'writeAll',
+      data: {
+        Taches:       window.S.tasks,
+        Budget:       window.S.budget,
+        Benevoles:    window.S.volunteers,
+        Prestataires: window.S.providers,
+        Invites:      window.S.guests,
+        Lieux:        window.S.venues,
+      }
+    });
 
-    // Envoie séquentiellement (plus fiable que Promise.all pour Apps Script)
-    for (const [name, data] of Object.entries(sheets)) {
-      await saveOneSheet(name, data);
+    try {
+      // text/plain ne déclenche pas de preflight OPTIONS → pas bloqué par CORS
+      const res = await fetch(window.API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: payload,
+      });
+      // En mode no-cors on ne peut pas lire la réponse, mais ça passe
+      setStatus('✅ ' + new Date().toLocaleTimeString('fr-FR'));
+      if (typeof UI !== 'undefined') UI.showToast('✅ Synchronisé !', 'ok');
+    } catch(e) {
+      console.error('[Sync] save failed', e);
+      // Fallback : envoyer onglet par onglet en GET (petits payloads seulement)
+      await saveSheetGet('Benevoles',    window.S.volunteers);
+      await saveSheetGet('Prestataires', window.S.providers);
+      await saveSheetGet('Invites',      window.S.guests);
+      await saveSheetGet('Lieux',        window.S.venues);
+      await saveSheetGet('Budget',       window.S.budget);
+      // Taches trop longues pour GET → on skip le fallback GET pour Taches
+      setStatus('⚠️ Sync partielle');
     }
 
     isSyncing = false;
     setBtn(false);
-    setStatus('✅ ' + new Date().toLocaleTimeString('fr-FR'));
-    UI.showToast('✅ Synchronisé !', 'ok');
-
     if (pendingSave) await save();
   }
 
-  // ── LOAD ← Google Sheets ──────────────────────────────────────────────────
-  // RÈGLE CRITIQUE : on ne charge QUE si Sheets contient réellement des données
-  // Pour éviter d'écraser l'état local avec un Sheets vide ou en cours d'écriture
+  // Fallback GET pour petits onglets
+  async function saveSheetGet(sheetName, data) {
+    const encoded = encodeURIComponent(JSON.stringify(data));
+    if (encoded.length > 7000) return; // trop long pour GET → skip
+    const url = window.API_URL + '?action=write&sheet=' + sheetName + '&data=' + encoded;
+    try {
+      await fetch(url, { method: 'GET', mode: 'no-cors' });
+    } catch(e) {
+      console.warn('[Sync] GET fallback failed for ' + sheetName);
+    }
+  }
+
+  // ── LOAD ←────────────────────────────────────────────────────────────────
   async function load() {
     setStatus('⏳ Chargement...');
     try {
@@ -702,29 +705,26 @@ const Sync = (() => {
       const guests     = json.Invites      || [];
       const venues     = json.Lieux        || [];
 
-      // ⚠️ Garde-fou : si Sheets retourne moins de tâches qu'on en a en mémoire,
-      // c'est que la sync n'est pas terminée ou a échoué → NE PAS écraser
-      const currentTaskCount = window.S.tasks.length;
-      if (tasks.length < currentTaskCount && currentTaskCount > 0) {
-        console.warn('[Sync] load() aborted: Sheets has ' + tasks.length + ' tasks but memory has ' + currentTaskCount + '. Skipping to avoid data loss.');
-        setStatus('⚠️ Sync protégée (' + currentTaskCount + ' tâches)');
+      // Garde-fou : ne pas écraser si Sheets a moins de tâches qu'en mémoire
+      const currentCount = window.S.tasks.length;
+      if (tasks.length < currentCount && currentCount > 0) {
+        console.warn('[Sync] load aborted: Sheets=' + tasks.length + ' < Memory=' + currentCount);
+        setStatus('⚠️ Sync protégée (' + currentCount + ' tâches)');
         return false;
       }
 
-      // Sheets complètement vide → pas encore initialisé
       if (tasks.length === 0 && budget.length === 0 && volunteers.length === 0
           && providers.length === 0 && guests.length === 0 && venues.length === 0) {
         setStatus('⚠️ Sheets vide');
         return false;
       }
 
-      // OK → charger les données
-      window.S.tasks      = tasks.map(t => ({ ...t, id: Number(t.id) || t.id }));
-      window.S.budget     = budget.map(b => ({ ...b, id: Number(b.id) || b.id, amount: parseFloat(b.amount) || 0 }));
-      window.S.volunteers = volunteers.map(v => ({ ...v, id: Number(v.id) || v.id }));
-      window.S.providers  = providers.map(p => ({ ...p, id: Number(p.id) || p.id, price: parseFloat(p.price) || 0 }));
-      window.S.guests     = guests.map(g => ({ ...g, id: Number(g.id) || g.id }));
-      window.S.venues     = venues.map(v => ({ ...v, id: Number(v.id) || v.id, cap: parseInt(v.cap) || 0, price: parseFloat(v.price) || 0 }));
+      window.S.tasks      = tasks.map(t => ({...t, id: Number(t.id)||t.id}));
+      window.S.budget     = budget.map(b => ({...b, id: Number(b.id)||b.id, amount: parseFloat(b.amount)||0}));
+      window.S.volunteers = volunteers.map(v => ({...v, id: Number(v.id)||v.id}));
+      window.S.providers  = providers.map(p => ({...p, id: Number(p.id)||p.id, price: parseFloat(p.price)||0}));
+      window.S.guests     = guests.map(g => ({...g, id: Number(g.id)||g.id}));
+      window.S.venues     = venues.map(v => ({...v, id: Number(v.id)||v.id, cap: parseInt(v.cap)||0, price: parseFloat(v.price)||0}));
 
       setStatus('✅ ' + new Date().toLocaleTimeString('fr-FR'));
       return true;
@@ -735,14 +735,13 @@ const Sync = (() => {
     }
   }
 
-  // ── Auto-refresh (ne s'exécute pas pendant une sauvegarde) ────────────────
-  function startAutoRefresh(intervalMs = 30000) {
+  function startAutoRefresh(ms = 30000) {
     if (autoRefreshInterval) clearInterval(autoRefreshInterval);
     autoRefreshInterval = setInterval(async () => {
-      if (isSyncing) return; // verrou respecté
+      if (isSyncing) return;
       const loaded = await load();
       if (loaded) Render.all();
-    }, intervalMs);
+    }, ms);
   }
 
   function stopAutoRefresh() {
