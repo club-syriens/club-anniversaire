@@ -5,7 +5,152 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🇸🇾 Club des Syriens — 1er Anniversaire · 28 mars 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<style>
+/* ─── VARIABLES ─── */
+:root {
+  --black:#0c0c0c; --cream:#faf6f0; --warm:#f5ede0; --gold:#c8922a; --gold-l:#e8b84b;
+  --red:#c0392b; --green:#1a6b3c; --blue:#1e40af; --text:#1a1a1a; --muted:#6b7280;
+  --border:#e0d5c8; --card:#ffffff; --shadow:0 4px 24px rgba(0,0,0,0.07);
+  --r:12px; --sw:232px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);display:flex;min-height:100vh;font-size:14px}
+
+/* ─── SIDEBAR ─── */
+.sidebar{width:var(--sw);background:var(--black);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow-y:auto}
+.logo{padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+.logo .flag{font-size:26px;margin-bottom:8px}
+.logo h2{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;line-height:1.4;color:var(--gold-l)}
+.logo p{font-size:11px;color:rgba(255,255,255,.35);margin-top:3px}
+.cntd{padding:14px 20px;background:rgba(200,146,42,.12);border-bottom:1px solid rgba(255,255,255,.08);text-align:center}
+.cntd .days{font-family:'Playfair Display',serif;font-size:38px;font-weight:900;color:var(--gold-l);line-height:1}
+.cntd .lbl{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+nav{padding:10px 0;flex:1}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;transition:.15s;border-left:3px solid transparent}
+.ni:hover{color:#fff;background:rgba(255,255,255,.05)}
+.ni.active{color:var(--gold-l);border-left-color:var(--gold-l);background:rgba(200,146,42,.1)}
+.ni .ic{font-size:15px;width:18px;text-align:center}
+.nb{margin-left:auto;background:var(--gold);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px;min-width:18px;text-align:center}
+.sfoot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.08)}
+.sync-btn{display:flex;align-items:center;gap:7px;background:var(--green);color:#fff;border:none;padding:9px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;width:100%;justify-content:center;font-family:'DM Sans',sans-serif;transition:.2s;margin-bottom:8px}
+.sync-btn:hover{background:#20854a}
+.sync-btn:disabled{opacity:.5;cursor:not-allowed}
+.sync-st{font-size:10px;color:rgba(255,255,255,.3);text-align:center}
+
+/* ─── MAIN ─── */
+.main{margin-left:var(--sw);flex:1;padding:28px 32px;max-width:calc(100% - var(--sw))}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.ph h1{font-family:'Playfair Display',serif;font-size:24px;font-weight:700}
+.ph p{color:var(--muted);font-size:13px;margin-top:2px}
+.ha{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ─── BUTTONS ─── */
+.btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;transition:.15s}
+.btn-gold{background:var(--gold);color:#fff}.btn-gold:hover{background:var(--gold-l)}
+.btn-out{background:transparent;color:var(--text);border:1.5px solid var(--border)}.btn-out:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sm{padding:5px 10px;font-size:11px}
+
+/* ─── SECTIONS ─── */
+.sec{display:none}.sec.active{display:block}
+
+/* ─── CARDS ─── */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:22px;margin-bottom:18px}
+.ct{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+
+/* ─── GRIDS ─── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:24px}
+
+/* ─── STAT CARDS ─── */
+.sc{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);border-left:4px solid var(--gold);position:relative;overflow:hidden}
+.sc::after{content:attr(data-ico);position:absolute;right:10px;bottom:6px;font-size:30px;opacity:.08}
+.sc .sv{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;line-height:1}
+.sc .sl{font-size:10px;color:var(--muted);margin-top:5px;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+.sc .ss{font-size:11px;color:var(--muted);margin-top:3px}
+.sc.g{border-left-color:var(--green)}.sc.r{border-left-color:var(--red)}.sc.b{border-left-color:var(--blue)}
+
+/* ─── TABLES ─── */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--warm);color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px;padding:9px 13px;text-align:left}
+td{padding:10px 13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--warm)}
+
+/* ─── BADGES ─── */
+.b{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.b-pend{background:#fef3c7;color:#92400e}.b-prog{background:#dbeafe;color:#1e40af}
+.b-done{background:#d1fae5;color:#065f46}.b-todo{background:#f3f4f6;color:#374151}.b-canc{background:#fee2e2;color:#991b1b}
+
+/* ─── PROGRESS BAR ─── */
+.pb{background:var(--border);border-radius:4px;height:6px;overflow:hidden}
+.pb .f{height:100%;background:var(--gold);border-radius:4px;transition:width .5s}
+
+/* ─── BUDGET BOXES ─── */
+.bb{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.bx{padding:18px;border-radius:10px;text-align:center}
+.bx.inc{background:#d1fae5}.bx.exp{background:#fee2e2}.bx.bal{background:#dbeafe}
+.bx .amt{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;margin-bottom:3px}
+.bx.inc .amt{color:var(--green)}.bx.exp .amt{color:var(--red)}.bx.bal .amt{color:var(--blue)}
+.bx .lbl2{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+/* ─── MODAL ─── */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.mo.open{display:flex}
+.md{background:#fff;border-radius:16px;padding:26px;width:480px;max-width:95vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.md h2{font-family:'Playfair Display',serif;font-size:19px;margin-bottom:18px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--cream);outline:none;transition:.15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold)}
+.fg textarea{min-height:70px;resize:vertical}
+.ma{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+
+/* ─── TIMELINE ─── */
+.tl{position:relative;padding-left:22px}
+.tl::before{content:'';position:absolute;left:9px;top:0;bottom:0;width:2px;background:var(--gold);opacity:.25}
+.tli{position:relative;padding:0 0 20px 22px}
+.tli::before{content:'';position:absolute;left:-7px;top:5px;width:11px;height:11px;border-radius:50%;background:var(--gold)}
+.tli .t{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.tli h4{font-size:13px;font-weight:700;margin-bottom:3px}
+.tli p{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--black);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;box-shadow:0 8px 30px rgba(0,0,0,.25);transform:translateY(80px);opacity:0;transition:.3s;z-index:9999}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--green)}.toast.err{background:var(--red)}
+
+/* ─── MISC ─── */
+.ar{font-family:'Noto Naskh Arabic',serif;direction:rtl;font-size:13px}
+.cat-hdr{background:linear-gradient(135deg,var(--black),#2a2a2a);color:#fff;border-radius:10px;padding:10px 16px;margin-bottom:2px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.cat-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--gold-l)}
+.cat-ar{font-family:'Noto Naskh Arabic',serif;font-size:13px;color:rgba(255,255,255,.6)}
+.cat-stats{margin-left:auto;font-size:11px;color:rgba(255,255,255,.45)}
+.cat-body{margin-bottom:14px}
+.srch-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.srch-bar input,.srch-bar select{padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:#fff;flex:1;min-width:140px}
+.srch-bar input:focus,.srch-bar select:focus{border-color:var(--gold)}
+.actb{display:flex;gap:4px}
+.icb{background:none;border:none;cursor:pointer;font-size:13px;padding:3px 5px;border-radius:4px;opacity:.5;transition:.15s}
+.icb:hover{opacity:1;background:var(--warm)}.icb.del:hover{background:#fee2e2;opacity:1}
+.vc{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.vc h3{font-size:15px;font-weight:700;margin-bottom:10px}
+.vc .meta{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.ibar{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;display:flex;align-items:center;gap:12px}
+.ibar a{color:var(--green);font-weight:600;text-decoration:none}.ibar a:hover{text-decoration:underline}
+.ckr{display:flex;align-items:center;gap:8px;padding:5px 0}
+.ckr input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--gold)}
+.ckr.done label{text-decoration:line-through;color:var(--muted)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* ─── LOADING OVERLAY ─── */
+#loading-overlay{position:fixed;inset:0;background:rgba(12,12,12,0.9);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:'DM Sans',sans-serif;gap:16px}
+#loading-overlay .spin{width:48px;height:48px;border:3px solid rgba(255,255,255,.2);border-top-color:#e8b84b;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+</style>
 </head>
 <body>
 
@@ -348,13 +493,904 @@
 <div class="toast" id="toast"></div>
 
 <!-- ═══════════════════════ SCRIPTS (ordre important) ══════════════════════ -->
-<script src="js/config.js"></script>
-<script src="js/helpers.js"></script>
-<script src="js/sync.js"></script>
-<script src="js/seed.js"></script>
-<script src="js/render.js"></script>
-<script src="js/forms.js"></script>
-<script src="js/app.js"></script>
+<script>
+// ═══ CONFIG ═══
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+// 🔧 METS TON URL GOOGLE APPS SCRIPT ICI
+window.API_URL = 'https://script.google.com/macros/s/AKfycbyhRd6NOBxy6h7YFuUF4irRor6AxdsZbEO7R-hc-k36XMRhfBuXO8TC4mWI6b1fGwwtQw/exec';
 
+// ─── DÉPARTEMENTS ─────────────────────────────────────────────────────────────
+window.DEPTS = {
+  "الشؤون المالية":              { fr:"Affaires financières",      icon:"💰", color:"#c8922a" },
+  "شؤون التواصل الداخلي":       { fr:"Communication interne",     icon:"📣", color:"#2563eb" },
+  "شؤون التواصل الخارجي":       { fr:"Communication externe",     icon:"🌐", color:"#7c3aed" },
+  "شؤون الحجز":                  { fr:"Réservations",              icon:"🎟️", color:"#1a6b3c" },
+  "شؤون السوشيال ميديا":         { fr:"Réseaux sociaux",           icon:"📱", color:"#c0392b" },
+  "شؤون الداتا":                  { fr:"Data",                      icon:"📊", color:"#0891b2" },
+  "شؤون المتطوعين":               { fr:"Bénévoles",                 icon:"🤝", color:"#d97706" },
+  "شؤون تنظيم الصالة والحفل":    { fr:"Organisation salle",        icon:"🏛️", color:"#374151" },
+  "الشؤون الفنية والترفيهية":    { fr:"Arts & Divertissement",     icon:"🎭", color:"#be185d" },
+  "شؤون الطعام":                  { fr:"Nourriture",                icon:"🍽️", color:"#92400e" }
+};
+
+// ─── ÉTAT GLOBAL ──────────────────────────────────────────────────────────────
+window.S = { tasks:[], budget:[], venues:[], volunteers:[], providers:[], guests:[] };
+
+
+// ═══ HELPERS ═══
+// ─── HELPERS & UTILITAIRES ────────────────────────────────────────────────────
+
+const UI = (() => {
+  // ── Toast notification ────────────────────────────────────────────────────
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.className = 'toast show' + (type ? ' ' + type : '');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── Loading overlay ───────────────────────────────────────────────────────
+  function showLoading(show) {
+    let el = document.getElementById('loading-overlay');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'loading-overlay';
+      el.innerHTML = `
+        <div style="font-size:40px">🇸🇾</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#e8b84b">Club des Syriens</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.6)" id="loading-msg">Connexion à Google Sheets...</div>
+        <div class="spin"></div>`;
+      document.body.appendChild(el);
+    }
+    el.style.display = show ? 'flex' : 'none';
+  }
+
+  // ── Modal helpers ─────────────────────────────────────────────────────────
+  function openMo(type) { document.getElementById('mo-' + type)?.classList.add('open'); }
+  function closeMo(id)  { document.getElementById(id)?.classList.remove('open'); }
+  function closeMoOut(e, id) { if (e.target.id === id) closeMo(id); }
+
+  // ── Navigation ────────────────────────────────────────────────────────────
+  function nav(el) {
+    document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+    document.getElementById('sec-' + el.dataset.s)?.classList.add('active');
+    Render.all();
+  }
+
+  // ── Countdown ─────────────────────────────────────────────────────────────
+  function updateCD() {
+    const diff = Math.max(0, Math.ceil((new Date('2026-03-28T18:30:00') - new Date()) / 86400000));
+    const el = document.getElementById('cd');
+    if (el) el.textContent = diff;
+  }
+
+  return { showToast, showLoading, openMo, closeMo, closeMoOut, nav, updateCD };
+})();
+
+// ── Fonctions globales réutilisées dans les onclick HTML ──────────────────────
+window.openMo      = UI.openMo;
+window.closeMo     = UI.closeMo;
+window.closeMoOut  = UI.closeMoOut;
+window.nav         = UI.nav;
+window.showToast   = UI.showToast;
+
+// ── Formatters ────────────────────────────────────────────────────────────────
+function fmt(n)  { return (n || 0).toLocaleString('fr-FR') + '€'; }
+function fmtD(d) { if (!d) return ''; return new Date(d).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric' }); }
+function sFr(s)  { return s === 'غير منجز' ? 'Non commencée' : s === 'قيد الانجاز' ? 'En cours' : s === 'منجز' ? 'Terminée' : s; }
+function sIco(s) { return s === 'منجز' ? '✅' : s === 'قيد الانجاز' ? '🔄' : '⏳'; }
+function bCls(s) { return s === 'منجز' ? 'b-done' : s === 'قيد الانجاز' ? 'b-prog' : 'b-pend'; }
+
+// ── Collapse/expand catégories ────────────────────────────────────────────────
+function tgl(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── Delete générique ──────────────────────────────────────────────────────────
+function delItem(col, id) {
+  if (!confirm('Confirmer la suppression ?')) return;
+  window.S[col] = window.S[col].filter(x => x.id !== id);
+  Sync.save();
+  Render.all();
+  UI.showToast('Supprimé', 'ok');
+}
+
+// ── Export CSV invités ────────────────────────────────────────────────────────
+function exportCSV() {
+  const rows = [['Nom','Email','Téléphone','Statut','Ticket payé','Notes']];
+  window.S.guests.forEach(g => rows.push([g.name, g.email||'', g.phone||'', g.status, g.ticket, g.notes||'']));
+  const href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows.map(r => r.map(c => '"' + c + '"').join(',')).join('\n'));
+  const a = document.createElement('a');
+  a.href = href; a.download = 'invites_club_syriens.csv'; a.click();
+  UI.showToast('CSV exporté ✅', 'ok');
+}
+
+
+// ═══ SYNC ═══
+// ─── SYNC MODULE v4 ───────────────────────────────────────────────────────────
+// Fix CORS : GET no-cors par onglet + verrou isSyncing + protection load()
+// ─────────────────────────────────────────────────────────────────────────────
+
+const Sync = (() => {
+  let isSyncing = false;
+  let pendingSave = false;
+  let autoRefreshInterval = null;
+
+  function setStatus(msg) {
+    const el = document.getElementById('sync-st');
+    if (el) el.textContent = msg;
+  }
+  function setBtn(disabled) {
+    const btn = document.querySelector('.sync-btn');
+    if (btn) btn.disabled = disabled;
+  }
+
+  // ── Sauvegarde un seul onglet via GET (contourne CORS sur POST) ────────────
+  async function saveOneSheet(sheetName, data) {
+    const encoded = encodeURIComponent(JSON.stringify(data));
+    const url = window.API_URL + '?action=write&sheet=' + sheetName + '&data=' + encoded;
+    try {
+      // no-cors : fire-and-forget, pas de réponse lisible mais ça passe
+      await fetch(url, { method: 'GET', mode: 'no-cors' });
+      return true;
+    } catch(e) {
+      try {
+        // Fallback XHR
+        await new Promise(resolve => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', url, true);
+          xhr.onload = xhr.onerror = () => resolve();
+          xhr.send();
+        });
+        return true;
+      } catch(e2) {
+        console.error('[Sync] saveOneSheet failed: ' + sheetName, e2);
+        return false;
+      }
+    }
+  }
+
+  // ── SAVE → envoie chaque onglet séparément ────────────────────────────────
+  async function save() {
+    if (isSyncing) { pendingSave = true; return; }
+    isSyncing = true;
+    pendingSave = false;
+    setBtn(true);
+    setStatus('⏳ Sauvegarde...');
+
+    const sheets = {
+      Taches:       window.S.tasks,
+      Budget:       window.S.budget,
+      Benevoles:    window.S.volunteers,
+      Prestataires: window.S.providers,
+      Invites:      window.S.guests,
+      Lieux:        window.S.venues,
+    };
+
+    // Envoie séquentiellement (plus fiable que Promise.all pour Apps Script)
+    for (const [name, data] of Object.entries(sheets)) {
+      await saveOneSheet(name, data);
+    }
+
+    isSyncing = false;
+    setBtn(false);
+    setStatus('✅ ' + new Date().toLocaleTimeString('fr-FR'));
+    UI.showToast('✅ Synchronisé !', 'ok');
+
+    if (pendingSave) await save();
+  }
+
+  // ── LOAD ← Google Sheets ──────────────────────────────────────────────────
+  // RÈGLE CRITIQUE : on ne charge QUE si Sheets contient réellement des données
+  // Pour éviter d'écraser l'état local avec un Sheets vide ou en cours d'écriture
+  async function load() {
+    setStatus('⏳ Chargement...');
+    try {
+      const res = await fetch(window.API_URL + '?action=readAll');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+
+      const tasks      = json.Taches       || [];
+      const budget     = json.Budget       || [];
+      const volunteers = json.Benevoles    || [];
+      const providers  = json.Prestataires || [];
+      const guests     = json.Invites      || [];
+      const venues     = json.Lieux        || [];
+
+      // ⚠️ Garde-fou : si Sheets retourne moins de tâches qu'on en a en mémoire,
+      // c'est que la sync n'est pas terminée ou a échoué → NE PAS écraser
+      const currentTaskCount = window.S.tasks.length;
+      if (tasks.length < currentTaskCount && currentTaskCount > 0) {
+        console.warn('[Sync] load() aborted: Sheets has ' + tasks.length + ' tasks but memory has ' + currentTaskCount + '. Skipping to avoid data loss.');
+        setStatus('⚠️ Sync protégée (' + currentTaskCount + ' tâches)');
+        return false;
+      }
+
+      // Sheets complètement vide → pas encore initialisé
+      if (tasks.length === 0 && budget.length === 0 && volunteers.length === 0
+          && providers.length === 0 && guests.length === 0 && venues.length === 0) {
+        setStatus('⚠️ Sheets vide');
+        return false;
+      }
+
+      // OK → charger les données
+      window.S.tasks      = tasks.map(t => ({ ...t, id: Number(t.id) || t.id }));
+      window.S.budget     = budget.map(b => ({ ...b, id: Number(b.id) || b.id, amount: parseFloat(b.amount) || 0 }));
+      window.S.volunteers = volunteers.map(v => ({ ...v, id: Number(v.id) || v.id }));
+      window.S.providers  = providers.map(p => ({ ...p, id: Number(p.id) || p.id, price: parseFloat(p.price) || 0 }));
+      window.S.guests     = guests.map(g => ({ ...g, id: Number(g.id) || g.id }));
+      window.S.venues     = venues.map(v => ({ ...v, id: Number(v.id) || v.id, cap: parseInt(v.cap) || 0, price: parseFloat(v.price) || 0 }));
+
+      setStatus('✅ ' + new Date().toLocaleTimeString('fr-FR'));
+      return true;
+    } catch(e) {
+      console.error('[Sync] load failed', e);
+      setStatus('❌ Erreur chargement');
+      return false;
+    }
+  }
+
+  // ── Auto-refresh (ne s'exécute pas pendant une sauvegarde) ────────────────
+  function startAutoRefresh(intervalMs = 30000) {
+    if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+    autoRefreshInterval = setInterval(async () => {
+      if (isSyncing) return; // verrou respecté
+      const loaded = await load();
+      if (loaded) Render.all();
+    }, intervalMs);
+  }
+
+  function stopAutoRefresh() {
+    if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+  }
+
+  return { save, load, startAutoRefresh, stopAutoRefresh };
+})();
+
+window.syncSheets = Sync.save;
+
+
+// ═══ SEED ═══
+// ─── SEED DATA ────────────────────────────────────────────────────────────────
+// Données initiales si Google Sheets est vide au premier lancement
+// ─────────────────────────────────────────────────────────────────────────────
+
+function seedData() {
+  window.S.tasks = [
+    {id:1,ar:"تحديد جميع التكاليف اللازمة لانجاز الحفل من خلال عروض الاسعار",fr:"Identifier tous les coûts via devis",dept:"الشؤون المالية",owner:"Mona",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:2,ar:"تحديد سعر الحجز",fr:"Fixer le prix du ticket (25€ envisagé)",dept:"الشؤون المالية",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:3,ar:"تحديد هامش الربح الناتج من الحفل ان أمكن",fr:"Calculer la marge bénéficiaire potentielle",dept:"الشؤون المالية",owner:"Yassr",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:4,ar:"دراسة الميزانية بشكل كامل",fr:"Étude complète du budget",dept:"الشؤون المالية",owner:"Yassr",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:5,ar:"تصميم الاعلان عن الحفل للسوشيال ميديا",fr:"Créer les annonces (posts & vidéos) pour les réseaux sociaux",dept:"شؤون التواصل الداخلي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:6,ar:"تصميم الرسائل الخاصة لدعوة أعضاء النادي",fr:"Rédiger les invitations personnalisées aux membres",dept:"شؤون التواصل الداخلي",owner:"Nour",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:7,ar:"تصميم خطة ومنهجية لارسال الدعوات",fr:"Planifier l'envoi des invitations (avec dept. Data)",dept:"شؤون التواصل الداخلي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:8,ar:"تصميم استبيان ما بعد الحفل",fr:"Créer le questionnaire post-événement",dept:"شؤون التواصل الداخلي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:9,ar:"ارسال استبيان مابعد الحفل لكل المشاركين",fr:"Envoyer le questionnaire à tous les participants",dept:"شؤون التواصل الداخلي",owner:"",vols:"",date:"2026-03-30",status:"غير منجز",notes:"Après l'événement"},
+    {id:10,ar:"تصميم بوستر ستاند النادي",fr:"Créer le poster du stand du club",dept:"شؤون التواصل الداخلي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:11,ar:"تصميم صفحة الانضمام للنادي",fr:"Concevoir la page d'adhésion au club",dept:"شؤون التواصل الداخلي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:12,ar:"تصميم فيديو النادي الذي سيعرض في الحفل",fr:"Produire la vidéo du club (à projeter pendant l'événement)",dept:"شؤون التواصل الداخلي",owner:"Yahya, Iman",vols:"Yahya,Iman",date:"2026-03-20",status:"غير منجز",notes:""},
+    {id:13,ar:"التواصل مع الصالات والتفاوض على الاسعار",fr:"Contacter les salles et négocier les prix",dept:"شؤون التواصل الخارجي",owner:"",vols:"Gufran",date:"",status:"قيد الانجاز",notes:"Gufran en charge"},
+    {id:14,ar:"التواصل مع الفنانين والتفاوض على المحتوى والتكلفة",fr:"Contacter les artistes (musique & stand-up)",dept:"شؤون التواصل الخارجي",owner:"",vols:"",date:"",status:"غير منجز",notes:"Cachet 100-200€"},
+    {id:15,ar:"التواصل مع المشاركين بعرض ستاند",fr:"Contacter les exposants pour les stands",dept:"شؤون التواصل الخارجي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:16,ar:"التواصل مع Photobooth",fr:"Contacter le prestataire Photo Booth",dept:"شؤون التواصل الخارجي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:17,ar:"تصميم كلمة ترحيب الحفل",fr:"Rédiger le discours d'accueil",dept:"شؤون التواصل الخارجي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:18,ar:"تصميم كلمة لشكر المتطوعين",fr:"Rédiger le discours de remerciements bénévoles",dept:"شؤون التواصل الخارجي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:19,ar:"تصميم كلمة لشكر الشركاء",fr:"Rédiger le discours de remerciements partenaires",dept:"شؤون التواصل الخارجي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:20,ar:"تصميم كلمة عن انجازات النادي وأهداف العام الجديد",fr:"Préparer le bilan annuel et objectifs 2026",dept:"شؤون التواصل الخارجي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:21,ar:"تصميم رسائل التواصل مع كل الفنانين والشركاء",fr:"Rédiger les messages pour tous les partenaires/prestataires",dept:"شؤون التواصل الخارجي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:22,ar:"ارسال رسائل التواصل مع كل الفنانين والشركاء",fr:"Envoyer les messages à tous les partenaires/prestataires",dept:"شؤون التواصل الخارجي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:23,ar:"اعداد قائمة بكل الجهات المدعوة",fr:"Préparer la liste complète des invités institutionnels",dept:"شؤون التواصل الخارجي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:24,ar:"تصميم رسالة الدعوة للجهات المدعوة",fr:"Créer le message d'invitation officiel",dept:"شؤون التواصل الخارجي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:25,ar:"ارسال رسائل الدعوة للجهات المدعوة",fr:"Envoyer les invitations officielles",dept:"شؤون التواصل الخارجي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:26,ar:"تصميم فكرة فيديو النادي الذي سيعرض في الحفل",fr:"Concevoir le concept de la vidéo du club",dept:"شؤون التواصل الخارجي",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:27,ar:"تنفيذ فيديو النادي الذي سيعرض في الحفل",fr:"Produire et monter la vidéo du club",dept:"شؤون التواصل الخارجي",owner:"Yahya",vols:"Yahya",date:"2026-03-20",status:"غير منجز",notes:""},
+    {id:28,ar:"تصميم منصة الحجز",fr:"Créer la plateforme de réservation/paiement en ligne",dept:"شؤون الحجز",owner:"",vols:"",date:"",status:"غير منجز",notes:"Helloasso ou équivalent"},
+    {id:29,ar:"جمع عدد الحضور وبياناتهم",fr:"Collecter les données des participants en continu",dept:"شؤون الحجز",owner:"Mohamad tashish",vols:"",date:"",status:"غير منجز",notes:"Jusqu'au jour J"},
+    {id:30,ar:"متابعة الية الدفع",fr:"Suivre les paiements et faciliter l'accès",dept:"شؤون الحجز",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:31,ar:"تصميم خطة نشر البوستات والفيديوهات",fr:"Créer le calendrier éditorial réseaux sociaux",dept:"شؤون السوشيال ميديا",owner:"",vols:"",date:"",status:"غير منجز",notes:"Avant, pendant, après l'événement"},
+    {id:32,ar:"نشر البوستات والفيديوهات",fr:"Publier les posts et vidéos",dept:"شؤون السوشيال ميديا",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:33,ar:"جمع قائمة بكل أعضاء النادي مع ارقامهم وايميلاتهم",fr:"Compiler la liste des membres (téléphones & emails)",dept:"شؤون الداتا",owner:"Mohamad tashish",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:34,ar:"تسليم نتائج استبيان ما بعد الحفل لقسم الفعاليات",fr:"Livrer les résultats du questionnaire post-événement",dept:"شؤون الداتا",owner:"Mohamad tashish",vols:"",date:"2026-04-05",status:"غير منجز",notes:""},
+    {id:35,ar:"تصميم رسالة لدعوة المتطوعين",fr:"Rédiger le message de recrutement des bénévoles",dept:"شؤون المتطوعين",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:36,ar:"جمع اسماء المتطوعين وانشاء مجموعة واتس",fr:"Lister les bénévoles et créer le groupe WhatsApp",dept:"شؤون المتطوعين",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:37,ar:"الاجتماع بالمتطوعين للشرح وتسليم المهام",fr:"Réunion d'info et attribution des rôles aux bénévoles",dept:"شؤون المتطوعين",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:38,ar:"تأمين العدد الكافي من المتطوعين",fr:"Recruter suffisamment de bénévoles",dept:"شؤون المتطوعين",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:39,ar:"التنسيق المستمر مع مسؤولين المهام",fr:"Coordination continue avec tous les responsables",dept:"شؤون المتطوعين",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:40,ar:"تصميم خطة لتقدير جهود المتطوعين بعد الحفل",fr:"Concevoir un plan de reconnaissance post-événement",dept:"شؤون المتطوعين",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:41,ar:"التأكد من المتطلبات اللازمة للصالة",fr:"Vérifier les besoins en équipement (tables, chaises, cuisine)",dept:"شؤون تنظيم الصالة والحفل",owner:"Mona",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:42,ar:"تنظيم استقبال الحضور",fr:"Organiser l'accueil et l'enregistrement des invités",dept:"شؤون تنظيم الصالة والحفل",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:43,ar:"تصميم الجدول الزمني للحفل",fr:"Créer le planning détaillé de la soirée",dept:"شؤون تنظيم الصالة والحفل",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:44,ar:"التأكد من ان الجدول الزمني يتم بشكل جيد أثناء الحفل",fr:"Assurer le bon déroulement du programme le jour J",dept:"شؤون تنظيم الصالة والحفل",owner:"",vols:"",date:"2026-03-28",status:"غير منجز",notes:"Jour J"},
+    {id:45,ar:"اختيار متطوعين للوقوف على الستاند",fr:"Désigner les bénévoles pour tenir le stand",dept:"شؤون تنظيم الصالة والحفل",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:46,ar:"التنسيق مع الفنانين بخصوص المتطلبات اللوجستية",fr:"Coordination logistique avec les artistes",dept:"الشؤون الفنية والترفيهية",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:47,ar:"ترتيب الفقرات الفنية حسب جدول زمني خاص",fr:"Planifier le timing des séquences artistiques",dept:"الشؤون الفنية والترفيهية",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:48,ar:"تنسيق شكل المسرح",fr:"Organiser la scène et la décoration",dept:"الشؤون الفنية والترفيهية",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:49,ar:"تصميم وتنفيذ أي فقرات فنية أخرى",fr:"Créer des séquences artistiques supplémentaires",dept:"الشؤون الفنية والترفيهية",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:50,ar:"تصميم اسئلة المسابقات",fr:"Préparer les questions du quiz (Arabe & Français) sur Typeform",dept:"الشؤون الفنية والترفيهية",owner:"Mohamed",vols:"",date:"",status:"غير منجز",notes:"Avec lots"},
+    {id:51,ar:"التواصل مع موزعين طعام والاتفاق معهم",fr:"Contacter les traiteurs (type, quantités, prix, livraison)",dept:"شؤون الطعام",owner:"Nour",vols:"",date:"2026-03-01",status:"قيد الانجاز",notes:"Buffet inclus dans ticket 25€"},
+    {id:52,ar:"تصميم طريقة التقديم",fr:"Concevoir la présentation visuelle du buffet",dept:"شؤون الطعام",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:53,ar:"تنفيذ طريقة التقديم",fr:"Mettre en place le buffet (jour J)",dept:"شؤون الطعام",owner:"",vols:"",date:"2026-03-28",status:"غير منجز",notes:"Jour J"},
+    {id:54,ar:"وضع خطة لتنظيف المكان بعد تقديم الطعام",fr:"Planifier le nettoyage post-buffet",dept:"شؤون الطعام",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:55,ar:"استلام الطعام عند الوصول وعرضه",fr:"Réceptionner et dresser le buffet à l'arrivée",dept:"شؤون الطعام",owner:"",vols:"",date:"2026-03-28",status:"غير منجز",notes:"Jour J"},
+    {id:56,ar:"تأمين المشاريب",fr:"Assurer les boissons (cola 3€, café 2€...)",dept:"شؤون الطعام",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+    {id:57,ar:"تأمين الادوات اللازمة من صحون وكاسات ومحارم",fr:"Fournir assiettes, verres et serviettes",dept:"شؤون الطعام",owner:"",vols:"",date:"",status:"غير منجز",notes:""},
+  ];
+
+  window.S.budget = [
+    {id:1,desc:"Subvention association partenaire",cat:"Subventions",type:"Revenu",amount:1400,status:"Confirmé"},
+    {id:2,desc:"Vente tickets (200 × 25€)",cat:"Tickets",type:"Revenu",amount:5000,status:"Estimé"},
+    {id:3,desc:"Bar (cola & café pendant l'événement)",cat:"Divers",type:"Revenu",amount:300,status:"Estimé"},
+    {id:4,desc:"Location salle (prise en charge par Mona)",cat:"Salle",type:"Dépense",amount:0,status:"Confirmé"},
+    {id:5,desc:"Cachet artiste musical syrien",cat:"Artistes",type:"Dépense",amount:150,status:"Estimé"},
+    {id:6,desc:"Cachet stand-up comique",cat:"Artistes",type:"Dépense",amount:200,status:"Estimé"},
+    {id:7,desc:"Buffet / traiteur syrien",cat:"Nourriture",type:"Dépense",amount:2500,status:"Estimé"},
+    {id:8,desc:"Impression flyers & posters",cat:"Communication",type:"Dépense",amount:200,status:"Estimé"},
+    {id:9,desc:"Décoration & Photo Booth",cat:"Logistique",type:"Dépense",amount:300,status:"Estimé"},
+    {id:10,desc:"Matériel quiz & lots",cat:"Divers",type:"Dépense",amount:150,status:"Estimé"},
+    {id:11,desc:"Vaisselle jetable (assiettes, verres, serviettes)",cat:"Logistique",type:"Dépense",amount:100,status:"Estimé"},
+  ];
+
+  window.S.venues = [
+    {id:1,name:"Salle confirmée (partenaire Mona)",addr:"Paris, France",cap:200,price:0,status:"Confirmé",notes:"Prise en charge par l'entreprise de Mona. Flexible pour toutes les activités. Contact via Gufran."},
+    {id:2,name:"Salle alternative (backup)",addr:"Paris",cap:150,price:800,status:"À visiter",notes:"À évaluer en cas de besoin"},
+  ];
+
+  window.S.volunteers = [
+    {id:1,name:"Mohamed",role:"Coordination générale, Data, Quiz, Excel",email:"",phone:"",avail:"Disponible"},
+    {id:2,name:"Nour Lazkani",role:"Communication interne, Restauration, Présentation",email:"nourallazkani@gmail.com",phone:"",avail:"Disponible"},
+    {id:3,name:"Yahya",role:"Vidéo & Production",email:"",phone:"",avail:"Disponible"},
+    {id:4,name:"Iman",role:"Montage vidéo",email:"",phone:"",avail:"Disponible"},
+    {id:5,name:"Mona",role:"Coordination Pitch Session, Salle",email:"",phone:"",avail:"Disponible"},
+    {id:6,name:"Jane",role:"Présentation du club",email:"",phone:"",avail:"Disponible"},
+    {id:7,name:"Rnaim",role:"Pitch Session, Présentation",email:"",phone:"",avail:"Disponible"},
+    {id:8,name:"Yassr",role:"Comptabilité & Budget",email:"",phone:"",avail:"Disponible"},
+    {id:9,name:"Mohamad Tashish",role:"Data, Réservations, Membres",email:"",phone:"",avail:"Disponible"},
+    {id:10,name:"Gufran",role:"Relations extérieures, Salles",email:"",phone:"",avail:"Disponible"},
+  ];
+
+  window.S.providers = [
+    {id:1,name:"Artiste musical syrien (À confirmer)",cat:"Artiste musical",contact:"",price:150,status:"À contacter",notes:"Cachet symbolique 100-200€. Répertoire patrimoine syrien modernisé."},
+    {id:2,name:"Stand-up comique (À confirmer)",cat:"Stand-up",contact:"",price:200,status:"À contacter",notes:"~20 min. Thème: intégration des Syriens en France."},
+    {id:3,name:"Photo Booth (À confirmer)",cat:"Photo Booth",contact:"",price:0,status:"À contacter",notes:"Décor drapeau syrien et couleurs du club."},
+    {id:4,name:"Traiteur buffet syrien",cat:"Traiteur",contact:"",price:2500,status:"En négociation",notes:"Buffet inclus dans ticket 25€. Contacter plusieurs restaurants syriens. Nour en charge."},
+  ];
+
+  window.S.guests = [];
+}
+
+
+// ═══ RENDER ═══
+// ─── RENDER MODULE ────────────────────────────────────────────────────────────
+// Toutes les fonctions d'affichage, organisées par section
+// ─────────────────────────────────────────────────────────────────────────────
+
+const Render = (() => {
+
+  // ── BADGES sidebar ────────────────────────────────────────────────────────
+  function badges() {
+    document.getElementById('b-tasks').textContent  = window.S.tasks.filter(t => t.status !== 'منجز').length;
+    document.getElementById('b-vol').textContent    = window.S.volunteers.length;
+    document.getElementById('b-prov').textContent   = window.S.providers.length;
+    document.getElementById('b-guests').textContent = window.S.guests.length;
+    document.getElementById('b-ven').textContent    = window.S.venues.length;
+  }
+
+  // ── DASHBOARD ─────────────────────────────────────────────────────────────
+  function dashboard() {
+    const { tasks, budget, volunteers, guests, providers } = window.S;
+
+    const done = tasks.filter(t => t.status === 'منجز').length;
+    document.getElementById('d-tdone').textContent = done;
+    document.getElementById('d-ttot').textContent  = 'sur ' + tasks.length;
+
+    const inc = budget.filter(b => b.type === 'Revenu').reduce((s, b) => s + b.amount, 0);
+    const exp = budget.filter(b => b.type === 'Dépense').reduce((s, b) => s + b.amount, 0);
+    document.getElementById('d-inc').textContent = fmt(inc);
+    document.getElementById('d-exp').textContent = fmt(exp);
+    document.getElementById('d-bl').textContent  = fmt(inc - exp);
+    document.getElementById('d-bal').textContent = fmt(inc - exp);
+    document.getElementById('d-vol').textContent  = volunteers.length;
+    document.getElementById('d-tix').textContent  = guests.filter(g => g.status === 'Confirmé').length;
+    document.getElementById('d-prov').textContent = providers.length;
+
+    const pct = inc > 0 ? Math.min(100, Math.round(exp / inc * 100)) : 0;
+    document.getElementById('d-bbar').style.width = pct + '%';
+    document.getElementById('d-blbl').textContent = 'Dépenses : ' + pct + '% du total revenus estimés';
+
+    // Progression par département
+    let ph = '';
+    Object.entries(window.DEPTS).forEach(([ar, d]) => {
+      const dt = tasks.filter(t => t.dept === ar);
+      if (!dt.length) return;
+      const dd = dt.filter(t => t.status === 'منجز').length;
+      ph += `<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+          <span style="font-weight:600">${d.icon} ${d.fr}</span>
+          <span style="color:var(--muted)">${dd}/${dt.length}</span>
+        </div>
+        <div class="pb"><div class="f" style="width:${Math.round(dd/dt.length*100)}%;background:${d.color}"></div></div>
+      </div>`;
+    });
+    document.getElementById('d-progress').innerHTML = ph;
+
+    // Tâches urgentes/en cours
+    const prog = tasks.filter(t => t.status === 'قيد الانجاز').slice(0, 5);
+    const show  = prog.length ? prog : tasks.filter(t => t.status !== 'منجز').slice(0, 4);
+    document.getElementById('d-urgent').innerHTML = show.map(t => `
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+        <span>${sIco(t.status)}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.fr}</div>
+          <div style="font-size:11px;color:var(--muted)">${window.DEPTS[t.dept]?.icon||''} ${window.DEPTS[t.dept]?.fr||t.dept}${t.owner?' · '+t.owner:''}${t.date?' · '+fmtD(t.date):''}</div>
+        </div>
+        <span class="b ${bCls(t.status)}" style="white-space:nowrap">${sFr(t.status)}</span>
+      </div>`).join('') || '<p style="color:var(--muted);font-size:13px;padding:8px 0">Toutes les tâches restent à démarrer 🚀</p>';
+  }
+
+  // ── TÂCHES ────────────────────────────────────────────────────────────────
+  function tasks() {
+    const df = document.getElementById('ts-dept');
+    if (df && df.options.length <= 1) {
+      Object.entries(window.DEPTS).forEach(([ar, d]) => {
+        const o = document.createElement('option');
+        o.value = ar; o.textContent = d.icon + ' ' + d.fr;
+        df.appendChild(o);
+      });
+    }
+    const q   = (document.getElementById('ts-q')?.value || '').toLowerCase();
+    const dpt = document.getElementById('ts-dept')?.value || '';
+    const st  = document.getElementById('ts-status')?.value || '';
+
+    const filtered = window.S.tasks.filter(t =>
+      (!q  || (t.fr.toLowerCase().includes(q) || t.ar.includes(q) || (t.owner||'').toLowerCase().includes(q))) &&
+      (!dpt || t.dept === dpt) &&
+      (!st  || t.status === st)
+    );
+
+    const grouped = {};
+    filtered.forEach(t => { (grouped[t.dept] = grouped[t.dept] || []).push(t); });
+
+    let html = '';
+    Object.entries(window.DEPTS).forEach(([ar, d]) => {
+      if (!grouped[ar]) return;
+      const ts  = grouped[ar];
+      const dd  = ts.filter(t => t.status === 'منجز').length;
+      const cid = 'cat' + ar.replace(/\s/g, '_');
+      html += `
+        <div class="cat-hdr" onclick="tgl('${cid}')">
+          <span style="font-size:18px">${d.icon}</span>
+          <span class="cat-title">${d.fr}</span>
+          <span class="cat-ar">${ar}</span>
+          <span class="cat-stats">${dd}/${ts.length} terminées</span>
+        </div>
+        <div class="cat-body" id="${cid}">
+          <div class="card" style="margin-bottom:0;border-radius:0 0 12px 12px;border-top:3px solid ${d.color}">
+            <div class="tw"><table><thead><tr>
+              <th>Tâche (FR)</th><th>المهمة</th><th>Responsable</th><th>Bénévoles</th><th>Échéance</th><th>Statut</th><th>—</th>
+            </tr></thead><tbody>
+            ${ts.map(t => `<tr>
+              <td><strong>${t.fr}</strong>${t.notes ? '<br><span style="font-size:11px;color:var(--muted)">'+t.notes+'</span>' : ''}</td>
+              <td><span class="ar">${t.ar}</span></td>
+              <td>${t.owner || '—'}</td>
+              <td style="font-size:12px;color:var(--muted)">${t.vols || '—'}</td>
+              <td>${t.date ? fmtD(t.date) : '—'}</td>
+              <td><span class="b ${bCls(t.status)}">${sFr(t.status)}</span></td>
+              <td><div class="actb">
+                <button class="icb" onclick="Forms.editTask(${t.id})">✏️</button>
+                <button class="icb" onclick="cycleStatus(${t.id})" title="Changer statut">🔄</button>
+                <button class="icb del" onclick="delItem('tasks',${t.id})">🗑️</button>
+              </div></td>
+            </tr>`).join('')}
+            </tbody></table></div>
+          </div>
+        </div>`;
+    });
+    document.getElementById('tasks-cont').innerHTML = html || '<p style="color:var(--muted);padding:20px">Aucune tâche trouvée</p>';
+  }
+
+  // ── BUDGET ────────────────────────────────────────────────────────────────
+  function budget() {
+    const inc = window.S.budget.filter(b => b.type === 'Revenu').reduce((s, b)  => s + b.amount, 0);
+    const exp = window.S.budget.filter(b => b.type === 'Dépense').reduce((s, b) => s + b.amount, 0);
+    document.getElementById('bi-inc').textContent = fmt(inc);
+    document.getElementById('bi-exp').textContent = fmt(exp);
+    document.getElementById('bi-bal').textContent = fmt(inc - exp);
+    document.getElementById('budget-tbl').innerHTML = window.S.budget.map(b => `<tr>
+      <td><strong>${b.desc}</strong></td><td>${b.cat}</td>
+      <td><span style="color:${b.type==='Revenu'?'var(--green)':'var(--red)'};font-weight:700">${b.type}</span></td>
+      <td><strong>${fmt(b.amount)}</strong></td>
+      <td><span class="b ${b.status==='Payé'?'b-done':b.status==='Confirmé'?'b-prog':'b-pend'}">${b.status}</span></td>
+      <td><div class="actb">
+        <button class="icb" onclick="Forms.editBudget(${b.id})">✏️</button>
+        <button class="icb del" onclick="delItem('budget',${b.id})">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+  }
+
+  // ── LIEUX ─────────────────────────────────────────────────────────────────
+  function venues() {
+    const sc = { Confirmé:'var(--green)', Visité:'var(--gold)', 'À visiter':'#6b7280', Refusé:'var(--red)' };
+    document.getElementById('venues-grid').innerHTML = window.S.venues.map(v => `
+      <div class="vc">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <h3>${v.name}</h3>
+          <span style="background:${sc[v.status]||'#6b7280'};color:#fff;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap">${v.status}</span>
+        </div>
+        <div class="meta">
+          ${v.addr ? '<span>📍 '+v.addr+'</span>' : ''}
+          ${v.cap  ? '<span>👥 '+v.cap+' personnes</span>' : ''}
+          <span>💶 ${v.price === 0 ? 'Gratuit / Offert' : fmt(v.price)}</span>
+          ${v.notes ? '<span style="margin-top:4px;font-style:italic;font-size:11px">'+v.notes+'</span>' : ''}
+        </div>
+        <div style="display:flex;gap:6px;margin-top:12px">
+          <button class="btn btn-out btn-sm" onclick="Forms.editVenue(${v.id})">✏️ Modifier</button>
+          <button class="btn btn-sm" style="background:#fee2e2;color:var(--red);border:none;cursor:pointer" onclick="delItem('venues',${v.id})">🗑️</button>
+        </div>
+      </div>`).join('') || '<p style="color:var(--muted);padding:20px">Aucun lieu</p>';
+  }
+
+  // ── BÉNÉVOLES ─────────────────────────────────────────────────────────────
+  function volunteers() {
+    const ac = { Disponible:'b-done', Partiellement:'b-prog', 'Non disponible':'b-canc' };
+    document.getElementById('vol-tbl').innerHTML = window.S.volunteers.map(v => `<tr>
+      <td><strong>${v.name}</strong></td><td>${v.role||'—'}</td>
+      <td>${v.email||'—'}</td><td>${v.phone||'—'}</td>
+      <td><span class="b ${ac[v.avail]||'b-todo'}">${v.avail}</span></td>
+      <td><div class="actb">
+        <button class="icb" onclick="Forms.editVol(${v.id})">✏️</button>
+        <button class="icb del" onclick="delItem('volunteers',${v.id})">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+  }
+
+  // ── PRESTATAIRES ──────────────────────────────────────────────────────────
+  function providers() {
+    const sc = { 'À contacter':'b-todo', Contacté:'b-pend', 'En négociation':'b-prog', Confirmé:'b-done', Refusé:'b-canc' };
+    document.getElementById('prov-tbl').innerHTML = window.S.providers.map(p => `<tr>
+      <td><strong>${p.name}</strong></td><td>${p.cat}</td><td>${p.contact||'—'}</td>
+      <td>${p.price ? fmt(p.price) : '—'}</td>
+      <td><span class="b ${sc[p.status]||'b-todo'}">${p.status}</span></td>
+      <td style="font-size:12px;color:var(--muted);max-width:200px">${p.notes||'—'}</td>
+      <td><div class="actb">
+        <button class="icb" onclick="Forms.editProv(${p.id})">✏️</button>
+        <button class="icb del" onclick="delItem('providers',${p.id})">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+  }
+
+  // ── INVITÉS ───────────────────────────────────────────────────────────────
+  function guests() {
+    const q  = (document.getElementById('gs-q')?.value || '').toLowerCase();
+    const f  = document.getElementById('gs-f')?.value || '';
+    const fl = window.S.guests.filter(g =>
+      (!q || g.name.toLowerCase().includes(q) || (g.email||'').toLowerCase().includes(q)) &&
+      (!f || g.status === f)
+    );
+    const sc = { Confirmé:'b-done', 'En attente':'b-pend', Annulé:'b-canc' };
+    document.getElementById('guests-tbl').innerHTML = fl.map(g => `<tr>
+      <td><strong>${g.name}</strong></td><td>${g.email||'—'}</td><td>${g.phone||'—'}</td>
+      <td><span class="b ${sc[g.status]||'b-todo'}">${g.status}</span></td>
+      <td><span style="color:${g.ticket==='Oui'?'var(--green)':'var(--red)'};font-weight:700">${g.ticket}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${g.notes||'—'}</td>
+      <td><div class="actb">
+        <button class="icb" onclick="Forms.editGuest(${g.id})">✏️</button>
+        <button class="icb del" onclick="delItem('guests',${g.id})">🗑️</button>
+      </div></td>
+    </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Aucun invité — cliquez sur + pour en ajouter</td></tr>';
+
+    const el = document.getElementById('g-cnt');
+    if (el) el.textContent = fl.length + ' invité(s) · ' + window.S.guests.filter(g => g.status === 'Confirmé').length + ' confirmé(s) · ' + window.S.guests.filter(g => g.ticket === 'Oui').length + ' tickets payés';
+  }
+
+  // ── PROGRAMME checklist ───────────────────────────────────────────────────
+  const PROG_ITEMS = [
+    "Créer le poster Save the Date",
+    "Ouvrir la vente des billets (25€)",
+    "Finaliser l'artiste musical syrien",
+    "Finaliser le stand-up comique",
+    "Préparer le quiz Typeform (Arabe/Français)",
+    "Confirmer les entrepreneurs pour le pitch",
+    "Produire la vidéo histoire du club",
+    "Créer la présentation PowerPoint du club",
+    "Contacter le prestataire Photo Booth",
+    "Confirmer la salle avec Mona",
+    "Créer le groupe WhatsApp bénévoles",
+    "Publier les annonces réseaux sociaux"
+  ];
+  let progCk = JSON.parse(localStorage.getItem('csa_pc') || '[]');
+
+  function progChecklist() {
+    document.getElementById('prog-ck').innerHTML = PROG_ITEMS.map((item, i) => `
+      <div class="ckr${progCk.includes(i) ? ' done' : ''}" id="ck${i}">
+        <input type="checkbox" id="pc${i}" ${progCk.includes(i) ? 'checked' : ''} onchange="Render.tglPc(${i})">
+        <label for="pc${i}">${item}</label>
+      </div>`).join('');
+  }
+
+  function tglPc(i) {
+    if (progCk.includes(i)) progCk = progCk.filter(x => x !== i);
+    else progCk.push(i);
+    localStorage.setItem('csa_pc', JSON.stringify(progCk));
+    progChecklist();
+  }
+
+  // ── ALL (render tout) ─────────────────────────────────────────────────────
+  function all() {
+    dashboard();
+    tasks();
+    budget();
+    venues();
+    volunteers();
+    providers();
+    guests();
+    badges();
+    progChecklist();
+  }
+
+  return { all, dashboard, tasks, budget, venues, volunteers, providers, guests, badges, progChecklist, tglPc };
+})();
+
+// ── Cycle statut rapide ────────────────────────────────────────────────────────
+function cycleStatus(id) {
+  const t = window.S.tasks.find(x => x.id === id);
+  if (!t) return;
+  const cycle = ['غير منجز', 'قيد الانجاز', 'منجز'];
+  t.status = cycle[(cycle.indexOf(t.status) + 1) % cycle.length];
+  Sync.save();
+  Render.all();
+  UI.showToast('Statut → ' + sFr(t.status), 'ok');
+}
+
+
+// ═══ FORMS ═══
+// ─── FORMS MODULE ─────────────────────────────────────────────────────────────
+// Gestion de tous les formulaires (création + édition)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const Forms = (() => {
+
+  // ── TÂCHE ─────────────────────────────────────────────────────────────────
+  function saveTask() {
+    const fr = document.getElementById('ti-title').value.trim();
+    if (!fr) { UI.showToast('Titre requis', 'err'); return; }
+    const eid = parseInt(document.getElementById('te-id').value) || 0;
+    const item = {
+      id:     eid || Date.now(),
+      fr,
+      ar:     document.getElementById('ti-ar').value,
+      dept:   document.getElementById('ti-dept').value,
+      owner:  document.getElementById('ti-owner').value,
+      vols:   document.getElementById('ti-vols').value,
+      date:   document.getElementById('ti-date').value,
+      status: document.getElementById('ti-status').value,
+      notes:  document.getElementById('ti-notes').value,
+    };
+    if (eid) window.S.tasks = window.S.tasks.map(t => t.id === eid ? item : t);
+    else window.S.tasks.push(item);
+    Sync.save(); UI.closeMo('mo-task'); Render.all();
+    UI.showToast('Tâche sauvegardée ✅', 'ok');
+  }
+
+  function editTask(id) {
+    const t = window.S.tasks.find(x => x.id === id);
+    if (!t) return;
+    document.getElementById('mo-task-t').textContent       = 'Modifier';
+    document.getElementById('te-id').value                 = id;
+    document.getElementById('ti-title').value              = t.fr;
+    document.getElementById('ti-ar').value                 = t.ar || '';
+    document.getElementById('ti-dept').value               = t.dept;
+    document.getElementById('ti-owner').value              = t.owner || '';
+    document.getElementById('ti-vols').value               = t.vols || '';
+    document.getElementById('ti-date').value               = t.date || '';
+    document.getElementById('ti-status').value             = t.status;
+    document.getElementById('ti-notes').value              = t.notes || '';
+    UI.openMo('task');
+  }
+
+  // ── BUDGET ────────────────────────────────────────────────────────────────
+  function saveBudget() {
+    const desc = document.getElementById('bi-desc').value.trim();
+    if (!desc) { UI.showToast('Description requise', 'err'); return; }
+    const eid = parseInt(document.getElementById('be-id').value) || 0;
+    const item = {
+      id:     eid || Date.now(),
+      desc,
+      cat:    document.getElementById('bi-cat').value,
+      type:   document.getElementById('bi-type').value,
+      amount: parseFloat(document.getElementById('bi-amt').value) || 0,
+      status: document.getElementById('bi-status').value,
+    };
+    if (eid) window.S.budget = window.S.budget.map(b => b.id === eid ? item : b);
+    else window.S.budget.push(item);
+    Sync.save(); UI.closeMo('mo-budget'); Render.all();
+    UI.showToast('Budget mis à jour ✅', 'ok');
+  }
+
+  function editBudget(id) {
+    const b = window.S.budget.find(x => x.id === id);
+    if (!b) return;
+    document.getElementById('be-id').value      = id;
+    document.getElementById('bi-desc').value    = b.desc;
+    document.getElementById('bi-cat').value     = b.cat;
+    document.getElementById('bi-type').value    = b.type;
+    document.getElementById('bi-amt').value     = b.amount;
+    document.getElementById('bi-status').value  = b.status;
+    UI.openMo('budget');
+  }
+
+  // ── LIEU ──────────────────────────────────────────────────────────────────
+  function saveVenue() {
+    const name = document.getElementById('vi-name').value.trim();
+    if (!name) { UI.showToast('Nom requis', 'err'); return; }
+    const eid = parseInt(document.getElementById('ve-id').value) || 0;
+    const item = {
+      id:     eid || Date.now(),
+      name,
+      addr:   document.getElementById('vi-addr').value,
+      cap:    parseInt(document.getElementById('vi-cap').value) || 0,
+      price:  parseFloat(document.getElementById('vi-price').value) || 0,
+      status: document.getElementById('vi-status').value,
+      notes:  document.getElementById('vi-notes').value,
+    };
+    if (eid) window.S.venues = window.S.venues.map(v => v.id === eid ? item : v);
+    else window.S.venues.push(item);
+    Sync.save(); UI.closeMo('mo-venue'); Render.all();
+    UI.showToast('Lieu enregistré ✅', 'ok');
+  }
+
+  function editVenue(id) {
+    const v = window.S.venues.find(x => x.id === id);
+    if (!v) return;
+    document.getElementById('ve-id').value       = id;
+    document.getElementById('vi-name').value     = v.name;
+    document.getElementById('vi-addr').value     = v.addr || '';
+    document.getElementById('vi-cap').value      = v.cap || '';
+    document.getElementById('vi-price').value    = v.price || '';
+    document.getElementById('vi-status').value   = v.status;
+    document.getElementById('vi-notes').value    = v.notes || '';
+    UI.openMo('venue');
+  }
+
+  // ── BÉNÉVOLE ──────────────────────────────────────────────────────────────
+  function saveVol() {
+    const name = document.getElementById('voi-name').value.trim();
+    if (!name) { UI.showToast('Nom requis', 'err'); return; }
+    const eid = parseInt(document.getElementById('voe-id').value) || 0;
+    const item = {
+      id:    eid || Date.now(),
+      name,
+      role:  document.getElementById('voi-role').value,
+      email: document.getElementById('voi-email').value,
+      phone: document.getElementById('voi-phone').value,
+      avail: document.getElementById('voi-avail').value,
+    };
+    if (eid) window.S.volunteers = window.S.volunteers.map(v => v.id === eid ? item : v);
+    else window.S.volunteers.push(item);
+    Sync.save(); UI.closeMo('mo-vol'); Render.all();
+    UI.showToast('Bénévole ajouté ✅', 'ok');
+  }
+
+  function editVol(id) {
+    const v = window.S.volunteers.find(x => x.id === id);
+    if (!v) return;
+    document.getElementById('voe-id').value      = id;
+    document.getElementById('voi-name').value    = v.name;
+    document.getElementById('voi-role').value    = v.role || '';
+    document.getElementById('voi-email').value   = v.email || '';
+    document.getElementById('voi-phone').value   = v.phone || '';
+    document.getElementById('voi-avail').value   = v.avail;
+    UI.openMo('vol');
+  }
+
+  // ── PRESTATAIRE ───────────────────────────────────────────────────────────
+  function saveProv() {
+    const name = document.getElementById('pri-name').value.trim();
+    if (!name) { UI.showToast('Nom requis', 'err'); return; }
+    const eid = parseInt(document.getElementById('pre-id').value) || 0;
+    const item = {
+      id:      eid || Date.now(),
+      name,
+      cat:     document.getElementById('pri-cat').value,
+      contact: document.getElementById('pri-contact').value,
+      price:   parseFloat(document.getElementById('pri-price').value) || 0,
+      status:  document.getElementById('pri-status').value,
+      notes:   document.getElementById('pri-notes').value,
+    };
+    if (eid) window.S.providers = window.S.providers.map(p => p.id === eid ? item : p);
+    else window.S.providers.push(item);
+    Sync.save(); UI.closeMo('mo-prov'); Render.all();
+    UI.showToast('Prestataire ajouté ✅', 'ok');
+  }
+
+  function editProv(id) {
+    const p = window.S.providers.find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('pre-id').value        = id;
+    document.getElementById('pri-name').value      = p.name;
+    document.getElementById('pri-cat').value       = p.cat;
+    document.getElementById('pri-contact').value   = p.contact || '';
+    document.getElementById('pri-price').value     = p.price || '';
+    document.getElementById('pri-status').value    = p.status;
+    document.getElementById('pri-notes').value     = p.notes || '';
+    UI.openMo('prov');
+  }
+
+  // ── INVITÉ ────────────────────────────────────────────────────────────────
+  function saveGuest() {
+    const name = document.getElementById('gi-name').value.trim();
+    if (!name) { UI.showToast('Nom requis', 'err'); return; }
+    const eid = parseInt(document.getElementById('ge-id').value) || 0;
+    const item = {
+      id:     eid || Date.now(),
+      name,
+      email:  document.getElementById('gi-email').value,
+      phone:  document.getElementById('gi-phone').value,
+      status: document.getElementById('gi-status').value,
+      ticket: document.getElementById('gi-ticket').value,
+      notes:  document.getElementById('gi-notes').value,
+    };
+    if (eid) window.S.guests = window.S.guests.map(g => g.id === eid ? item : g);
+    else window.S.guests.push(item);
+    Sync.save(); UI.closeMo('mo-guest'); Render.all();
+    UI.showToast('Invité ajouté ✅', 'ok');
+  }
+
+  function editGuest(id) {
+    const g = window.S.guests.find(x => x.id === id);
+    if (!g) return;
+    document.getElementById('ge-id').value       = id;
+    document.getElementById('gi-name').value     = g.name;
+    document.getElementById('gi-email').value    = g.email || '';
+    document.getElementById('gi-phone').value    = g.phone || '';
+    document.getElementById('gi-status').value   = g.status;
+    document.getElementById('gi-ticket').value   = g.ticket;
+    document.getElementById('gi-notes').value    = g.notes || '';
+    UI.openMo('guest');
+  }
+
+  return {
+    saveTask, editTask,
+    saveBudget, editBudget,
+    saveVenue, editVenue,
+    saveVol, editVol,
+    saveProv, editProv,
+    saveGuest, editGuest,
+  };
+})();
+
+
+// ═══ APP ═══
+// ─── APP.JS v5 — Point d'entrée ───────────────────────────────────────────────
+
+async function init() {
+  UI.updateCD();
+  setInterval(UI.updateCD, 60000);
+  UI.showLoading(true);
+
+  // Forcer le rechargement des données initiales
+  // (ignore ce qu'il y a dans Sheets si c'est incomplet)
+  const loaded = await Sync.load();
+
+  // Ne garder les données Sheets QUE si on a bien les 57 tâches
+  const hasFullData = window.S.tasks.length >= 57;
+
+  if (!loaded || !hasFullData) {
+    seedData();
+    await Sync.save();
+  }
+
+  UI.showLoading(false);
+  Render.all();
+  Sync.startAutoRefresh(30000);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+</script>
 </body>
 </html>
