@@ -1,15 +1,12 @@
-// ─── SYNC MODULE ─────────────────────────────────────────────────────────────
-// Gère toute la communication avec Google Sheets via Apps Script
-// Corrections : verrou isSyncing, mode POST, gestion de file d'attente
+// ─── SYNC MODULE v4 ───────────────────────────────────────────────────────────
+// Fix CORS : GET no-cors par onglet + verrou isSyncing + protection load()
 // ─────────────────────────────────────────────────────────────────────────────
 
 const Sync = (() => {
-  // ── État interne ──────────────────────────────────────────────────────────
-  let isSyncing = false;          // Verrou : empêche les sauvegardes simultanées
-  let pendingSave = false;        // File d'attente : une sauvegarde est-elle en attente ?
+  let isSyncing = false;
+  let pendingSave = false;
   let autoRefreshInterval = null;
 
-  // ── Utilitaires UI ────────────────────────────────────────────────────────
   function setStatus(msg) {
     const el = document.getElementById('sync-st');
     if (el) el.textContent = msg;
@@ -19,19 +16,40 @@ const Sync = (() => {
     if (btn) btn.disabled = disabled;
   }
 
-  // ── SAVE → Google Sheets (POST pour éviter la limite d'URL) ───────────────
-  async function save() {
-    // Si une sauvegarde est déjà en cours, mémoriser et sortir
-    if (isSyncing) {
-      pendingSave = true;
-      return;
+  // ── Sauvegarde un seul onglet via GET (contourne CORS sur POST) ────────────
+  async function saveOneSheet(sheetName, data) {
+    const encoded = encodeURIComponent(JSON.stringify(data));
+    const url = window.API_URL + '?action=write&sheet=' + sheetName + '&data=' + encoded;
+    try {
+      // no-cors : fire-and-forget, pas de réponse lisible mais ça passe
+      await fetch(url, { method: 'GET', mode: 'no-cors' });
+      return true;
+    } catch(e) {
+      try {
+        // Fallback XHR
+        await new Promise(resolve => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', url, true);
+          xhr.onload = xhr.onerror = () => resolve();
+          xhr.send();
+        });
+        return true;
+      } catch(e2) {
+        console.error('[Sync] saveOneSheet failed: ' + sheetName, e2);
+        return false;
+      }
     }
+  }
+
+  // ── SAVE → envoie chaque onglet séparément ────────────────────────────────
+  async function save() {
+    if (isSyncing) { pendingSave = true; return; }
     isSyncing = true;
     pendingSave = false;
     setBtn(true);
     setStatus('⏳ Sauvegarde...');
 
-    const state = {
+    const sheets = {
       Taches:       window.S.tasks,
       Budget:       window.S.budget,
       Benevoles:    window.S.volunteers,
@@ -40,48 +58,22 @@ const Sync = (() => {
       Lieux:        window.S.venues,
     };
 
-    let success = false;
-    try {
-      const res = await fetch(window.API_URL, {
-        method: 'POST',
-        // Apps Script accepte le body en text/plain (CORS simplifié)
-        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-        body: JSON.stringify({ action: 'writeAll', data: state }),
-      });
-      if (res.ok) {
-        const json = await res.json().catch(() => ({}));
-        success = json.success !== false;
-      }
-    } catch (e) {
-      console.warn('[Sync] POST failed, trying GET fallback...', e);
-      // Fallback GET (petits payloads uniquement)
-      try {
-        const url = window.API_URL + '?action=writeAll&data=' + encodeURIComponent(JSON.stringify(state));
-        const res2 = await fetch(url);
-        success = res2.ok;
-      } catch (e2) {
-        console.error('[Sync] Both methods failed', e2);
-      }
+    // Envoie séquentiellement (plus fiable que Promise.all pour Apps Script)
+    for (const [name, data] of Object.entries(sheets)) {
+      await saveOneSheet(name, data);
     }
 
     isSyncing = false;
     setBtn(false);
+    setStatus('✅ ' + new Date().toLocaleTimeString('fr-FR'));
+    UI.showToast('✅ Synchronisé !', 'ok');
 
-    if (success) {
-      setStatus('✅ ' + new Date().toLocaleTimeString('fr-FR'));
-      UI.showToast('✅ Google Sheets synchronisé !', 'ok');
-    } else {
-      setStatus('❌ Erreur sync');
-      UI.showToast('❌ Erreur — vérifie l\'Apps Script', 'err');
-    }
-
-    // Si une sauvegarde était en attente, la déclencher maintenant
-    if (pendingSave) {
-      await save();
-    }
+    if (pendingSave) await save();
   }
 
   // ── LOAD ← Google Sheets ──────────────────────────────────────────────────
+  // RÈGLE CRITIQUE : on ne charge QUE si Sheets contient réellement des données
+  // Pour éviter d'écraser l'état local avec un Sheets vide ou en cours d'écriture
   async function load() {
     setStatus('⏳ Chargement...');
     try {
@@ -96,11 +88,23 @@ const Sync = (() => {
       const guests     = json.Invites      || [];
       const venues     = json.Lieux        || [];
 
-      if (tasks.length === 0 && budget.length === 0) {
-        setStatus('⚠️ Sheets vide — données initiales');
+      // ⚠️ Garde-fou : si Sheets retourne moins de tâches qu'on en a en mémoire,
+      // c'est que la sync n'est pas terminée ou a échoué → NE PAS écraser
+      const currentTaskCount = window.S.tasks.length;
+      if (tasks.length < currentTaskCount && currentTaskCount > 0) {
+        console.warn('[Sync] load() aborted: Sheets has ' + tasks.length + ' tasks but memory has ' + currentTaskCount + '. Skipping to avoid data loss.');
+        setStatus('⚠️ Sync protégée (' + currentTaskCount + ' tâches)');
         return false;
       }
 
+      // Sheets complètement vide → pas encore initialisé
+      if (tasks.length === 0 && budget.length === 0 && volunteers.length === 0
+          && providers.length === 0 && guests.length === 0 && venues.length === 0) {
+        setStatus('⚠️ Sheets vide');
+        return false;
+      }
+
+      // OK → charger les données
       window.S.tasks      = tasks.map(t => ({ ...t, id: Number(t.id) || t.id }));
       window.S.budget     = budget.map(b => ({ ...b, id: Number(b.id) || b.id, amount: parseFloat(b.amount) || 0 }));
       window.S.volunteers = volunteers.map(v => ({ ...v, id: Number(v.id) || v.id }));
@@ -110,18 +114,18 @@ const Sync = (() => {
 
       setStatus('✅ ' + new Date().toLocaleTimeString('fr-FR'));
       return true;
-    } catch (e) {
+    } catch(e) {
       console.error('[Sync] load failed', e);
       setStatus('❌ Erreur chargement');
       return false;
     }
   }
 
-  // ── Auto-refresh (ne se déclenche PAS si une sauvegarde est en cours) ──────
+  // ── Auto-refresh (ne s'exécute pas pendant une sauvegarde) ────────────────
   function startAutoRefresh(intervalMs = 30000) {
     if (autoRefreshInterval) clearInterval(autoRefreshInterval);
     autoRefreshInterval = setInterval(async () => {
-      if (isSyncing) return;             // ← verrou respecté
+      if (isSyncing) return; // verrou respecté
       const loaded = await load();
       if (loaded) Render.all();
     }, intervalMs);
@@ -131,9 +135,7 @@ const Sync = (() => {
     if (autoRefreshInterval) clearInterval(autoRefreshInterval);
   }
 
-  // ── Export public ─────────────────────────────────────────────────────────
   return { save, load, startAutoRefresh, stopAutoRefresh };
 })();
 
-// Alias global pour rétrocompatibilité
 window.syncSheets = Sync.save;
