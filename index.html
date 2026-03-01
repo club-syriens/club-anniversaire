@@ -969,7 +969,7 @@ const Rep = (() => {
   // ── FIELDS config ───────────────────────────────────────────────────────────
   const FIELDS = {
     lieux: [
-      {k:'type',    label:'Type',        type:'select', opts:['Salle d'événement','Restaurant','Autre']},
+      {k:'type',    label:'Type',        type:'select', opts:['Salle de réception','Restaurant','Autre']},
       {k:'nom',     label:'Nom / Lieu',  type:'text'},
       {k:'contact', label:'Contact',     type:'text'},
       {k:'adresse', label:'Adresse',     type:'text'},
@@ -1192,16 +1192,16 @@ function seedData() {
   // ── Répertoire seed data ──────────────────────────────────────────────────
   window.S.repertoire = window.S.repertoire || { lieux: [], artistes: [], traiteurs: [], prestataires: [] };
   if (!window.S.repertoire.lieux.length) window.S.repertoire.lieux = [
-    {id:1, type:"Salle d'événement", nom:"Maison de la Convivialité", contact:"12 Rue Maurice Grimaud, 75018 Paris", adresse:"12 Rue Maurice Grimaud, 75018 Paris", statut:"Contacté", commentaires:""},
-    {id:2, type:"Salle d'événement", nom:"Espace événementiel (rouge)", contact:"Sultan Salahine - Paris", adresse:"", statut:"Contacté", commentaires:"Non disponible - 150/pers min 80 pers"},
+    {id:1, type:"Salle de réception", nom:"Maison de la Convivialité", contact:"12 Rue Maurice Grimaud, 75018 Paris", adresse:"12 Rue Maurice Grimaud, 75018 Paris", statut:"Contacté", commentaires:""},
+    {id:2, type:"Salle de réception", nom:"Espace événementiel (rouge)", contact:"Sultan Salahine - Paris", adresse:"", statut:"Contacté", commentaires:"Non disponible - 150/pers min 80 pers"},
     {id:3, type:"Restaurant", nom:"Le Hasard Ludique", contact:"128 av. de Saint-Ouen, 75017", adresse:"128 av. de Saint-Ouen, 75017 Paris", statut:"À contacter", commentaires:""},
     {id:4, type:"Restaurant", nom:"Restaurant", contact:"75019 Paris", adresse:"75019 Paris", statut:"À contacter", commentaires:""},
-    {id:5, type:"Salle d'événement", nom:"Espace Multisalle", contact:"", adresse:"", statut:"À contacter", commentaires:""},
-    {id:6, type:"Salle d'événement", nom:"Espace Quartz", contact:"51 rue St-Maur, 75012 Paris", adresse:"51 rue St-Maur, 75012 Paris", statut:"Contacté", commentaires:""},
-    {id:7, type:"Salle d'événement", nom:"La Maraîche", contact:"188 rue de Paris, 93100 Montreuil", adresse:"188 rue de Paris, 93100 Montreuil", statut:"Confirmé", commentaires:""},
+    {id:5, type:"Salle de réception", nom:"Espace Multisalle", contact:"", adresse:"", statut:"À contacter", commentaires:""},
+    {id:6, type:"Salle de réception", nom:"Espace Quartz", contact:"51 rue St-Maur, 75012 Paris", adresse:"51 rue St-Maur, 75012 Paris", statut:"Contacté", commentaires:""},
+    {id:7, type:"Salle de réception", nom:"La Maraîche", contact:"188 rue de Paris, 93100 Montreuil", adresse:"188 rue de Paris, 93100 Montreuil", statut:"Confirmé", commentaires:""},
     {id:8, type:"Autre", nom:"Architecture de la Convivialité", contact:"10 Rue Maurice Grimaud, 75018 Paris", adresse:"", statut:"À contacter", commentaires:""},
     {id:9, type:"Autre", nom:"Réseau Jérémias Paris", contact:"Ile de Seine, Paris", adresse:"", statut:"À contacter", commentaires:""},
-    {id:10, type:"Salle d'événement", nom:"Fairofa", contact:"Rue du Bac Paris", adresse:"", statut:"À contacter", commentaires:""},
+    {id:10, type:"Salle de réception", nom:"Fairofa", contact:"Rue du Bac Paris", adresse:"", statut:"À contacter", commentaires:""},
   ];
   if (!window.S.repertoire.artistes.length) window.S.repertoire.artistes = [
     {id:1, type:"Chanteur/Musicien", nom:"Lena Shamamian", contact:"Contact Mouss Pouy", tarif:"", statut:"À contacter", commentaires:"En train de bosser un message pour lui en parler"},
