@@ -106,6 +106,11 @@ tr:hover td{background:var(--warm)}
 .fg input,.fg select,.fg textarea{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--cream);outline:none;transition:.15s}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold)}
 .fg textarea{min-height:70px;resize:vertical}
+  .mfg{margin-bottom:14px}
+  .mfg label{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+  .mfg input,.mfg select,.mfg textarea{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--cream);outline:none;transition:.15s}
+  .mfg input:focus,.mfg select:focus,.mfg textarea:focus{border-color:var(--gold)}
+  .mfg textarea{min-height:70px;resize:vertical}
 .ma{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
 
 /* ─── TIMELINE ─── */
@@ -150,6 +155,24 @@ tr:hover td{background:var(--warm)}
 #loading-overlay .spin{width:48px;height:48px;border:3px solid rgba(255,255,255,.2);border-top-color:#e8b84b;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+
+  /* ── Répertoire ── */
+  .rep-tab {
+    padding: 8px 18px; border-radius: 20px; border: 1.5px solid var(--gold);
+    background: white; color: var(--gold); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all .15s;
+  }
+  .rep-tab.active { background: var(--gold); color: white; }
+  .rep-tab:hover  { background: var(--gold); color: white; }
+  .btn-sm { padding: 5px 12px !important; font-size: 12px !important; }
+  .status-badge {
+    display: inline-block; padding: 2px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; white-space: nowrap;
+  }
+  .st-ok       { background: #d6f4e0; color: #1e7a3e; }
+  .st-contact  { background: #fad7d7; color: #b91c1c; }
+  .st-pending  { background: #fff3cd; color: #856404; }
+  .st-none     { background: #f0f0f0; color: #666; }
 </style>
 </head>
 <body>
@@ -173,6 +196,7 @@ tr:hover td{background:var(--warm)}
     <div class="ni"        data-s="volunteers"  onclick="UI.nav(this)"><span class="ic">🤝</span>Bénévoles<span class="nb" id="b-vol">0</span></div>
     <div class="ni"        data-s="providers"   onclick="UI.nav(this)"><span class="ic">🏢</span>Prestataires<span class="nb" id="b-prov">0</span></div>
     <div class="ni"        data-s="guests"      onclick="UI.nav(this)"><span class="ic">👥</span>Invités<span class="nb" id="b-guests">0</span></div>
+    <div class="ni"        data-s="repertoire"  onclick="UI.nav(this)"><span class="ic">📒</span>Répertoire</div>
     <div class="ni"        data-s="program"     onclick="UI.nav(this)"><span class="ic">🎭</span>Programme</div>
   </nav>
   <div class="sfoot">
@@ -354,6 +378,82 @@ tr:hover td{background:var(--warm)}
   </div>
 </div>
 
+<!-- ── RÉPERTOIRE ─────────────────────────────────────────────────────────── -->
+<div id="sec-repertoire" class="sec">
+  <div class="ph">
+    <div><h1>📒 Répertoire</h1><p>Contacts & prestataires · دليل العناوين</p></div>
+    <div class="ha" style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-gold" onclick="exportRepertoirePDF()">⬇️ PDF</button>
+      <button class="btn" style="background:#34a853;color:white" onclick="exportRepertoireSheets()">📊 Sheets</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div style="display:flex;gap:8px;padding:0 0 16px 0;flex-wrap:wrap" id="rep-tabs">
+    <button class="rep-tab active" data-cat="lieux"         onclick="Rep.setTab(this,'lieux')">🏛️ Lieux</button>
+    <button class="rep-tab"        data-cat="artistes"      onclick="Rep.setTab(this,'artistes')">🎤 Artistes</button>
+    <button class="rep-tab"        data-cat="traiteurs"     onclick="Rep.setTab(this,'traiteurs')">🍽️ Traiteurs</button>
+    <button class="rep-tab"        data-cat="prestataires"  onclick="Rep.setTab(this,'prestataires')">🔧 Prestataires</button>
+  </div>
+
+  <!-- LIEUX -->
+  <div id="rep-lieux" class="rep-cat">
+    <div class="card">
+      <div class="ct" style="display:flex;justify-content:space-between;align-items:center">
+        <span>🏛️ Lieux — Salles & Restaurants</span>
+        <button class="btn btn-gold btn-sm" onclick="Rep.add('lieux')">+ Ajouter</button>
+      </div>
+      <div class="tw"><table id="tbl-lieux">
+        <thead><tr><th>Type</th><th>Nom / Lieu</th><th>Contact</th><th>Adresse</th><th>Statut</th><th>Commentaires</th><th>Actions</th></tr></thead>
+        <tbody id="tbody-lieux"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ARTISTES -->
+  <div id="rep-artistes" class="rep-cat" style="display:none">
+    <div class="card">
+      <div class="ct" style="display:flex;justify-content:space-between;align-items:center">
+        <span>🎤 Artistes</span>
+        <button class="btn btn-gold btn-sm" onclick="Rep.add('artistes')">+ Ajouter</button>
+      </div>
+      <div class="tw"><table id="tbl-artistes">
+        <thead><tr><th>Type</th><th>Nom</th><th>Contact</th><th>Tarif</th><th>Statut</th><th>Commentaires</th><th>Actions</th></tr></thead>
+        <tbody id="tbody-artistes"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- TRAITEURS -->
+  <div id="rep-traiteurs" class="rep-cat" style="display:none">
+    <div class="card">
+      <div class="ct" style="display:flex;justify-content:space-between;align-items:center">
+        <span>🍽️ Traiteurs</span>
+        <button class="btn btn-gold btn-sm" onclick="Rep.add('traiteurs')">+ Ajouter</button>
+      </div>
+      <div class="tw"><table id="tbl-traiteurs">
+        <thead><tr><th>Traiteur</th><th>Contact</th><th>Spécialité</th><th>Prix estimé</th><th>Statut</th><th>Commentaires</th><th>Actions</th></tr></thead>
+        <tbody id="tbody-traiteurs"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- PRESTATAIRES -->
+  <div id="rep-prestataires" class="rep-cat" style="display:none">
+    <div class="card">
+      <div class="ct" style="display:flex;justify-content:space-between;align-items:center">
+        <span>🔧 Prestataires de services</span>
+        <button class="btn btn-gold btn-sm" onclick="Rep.add('prestataires')">+ Ajouter</button>
+      </div>
+      <div class="tw"><table id="tbl-prestataires">
+        <thead><tr><th>Prestataire</th><th>Service</th><th>Contact</th><th>Prix estimé</th><th>Statut</th><th>Commentaires</th><th>Actions</th></tr></thead>
+        <tbody id="tbody-prestataires"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+
 </main>
 
 <!-- ═══════════════════════ MODALS ══════════════════════════════════════════ -->
@@ -489,6 +589,19 @@ tr:hover td{background:var(--warm)}
   </div>
 </div>
 
+
+<!-- ── MODAL GÉNÉRIQUE RÉPERTOIRE ─────────────────────────────────────────── -->
+<div id="modal" class="mo" onclick="if(event.target.id==='modal') document.getElementById('modal').style.display='none'">
+  <div class="md">
+    <h2 id="mo-title">Ajouter</h2>
+    <div id="mo-body"></div>
+    <div class="ma">
+      <button class="btn btn-out" onclick="document.getElementById('modal').style.display='none'">Annuler</button>
+      <button class="btn btn-gold" id="mo-save">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -514,7 +627,8 @@ window.DEPTS = {
 };
 
 // ─── ÉTAT GLOBAL ──────────────────────────────────────────────────────────────
-window.S = { tasks:[], budget:[], venues:[], volunteers:[], providers:[], guests:[] };
+window.S = { tasks:[], budget:[], venues:[], volunteers:[], providers:[], guests:[],
+  repertoire: { lieux:[], artistes:[], traiteurs:[], prestataires:[] } };
 
 
 // ═══ HELPERS ═══
@@ -648,6 +762,7 @@ const Sync = (() => {
         Prestataires: window.S.providers,
         Invites:      window.S.guests,
         Lieux:        window.S.venues,
+        Repertoire:   window.S.repertoire ? [window.S.repertoire] : [],
       }
     });
 
@@ -724,7 +839,18 @@ const Sync = (() => {
       window.S.volunteers = volunteers.map(v => ({...v, id: Number(v.id)||v.id}));
       window.S.providers  = providers.map(p => ({...p, id: Number(p.id)||p.id, price: parseFloat(p.price)||0}));
       window.S.guests     = guests.map(g => ({...g, id: Number(g.id)||g.id}));
-      window.S.venues     = venues.map(v => ({...v, id: Number(v.id)||v.id, cap: parseInt(v.cap)||0, price: parseFloat(v.price)||0}));
+      window.S.venues      = venues.map(v => ({...v, id: Number(v.id)||v.id, cap: parseInt(v.cap)||0, price: parseFloat(v.price)||0}));
+      const repertoireArr = json.Repertoire || [];
+      if (repertoireArr.length > 0 && repertoireArr[0] && typeof repertoireArr[0] === 'object') {
+        const rep = repertoireArr[0];
+        // Fusionner avec le seed existant pour ne pas perdre les données
+        window.S.repertoire = {
+          lieux:        Array.isArray(rep.lieux)        ? rep.lieux        : (window.S.repertoire?.lieux || []),
+          artistes:     Array.isArray(rep.artistes)     ? rep.artistes     : (window.S.repertoire?.artistes || []),
+          traiteurs:    Array.isArray(rep.traiteurs)    ? rep.traiteurs    : (window.S.repertoire?.traiteurs || []),
+          prestataires: Array.isArray(rep.prestataires) ? rep.prestataires : (window.S.repertoire?.prestataires || []),
+        };
+      }
 
       setStatus('✅ ' + new Date().toLocaleTimeString('fr-FR'));
       return true;
@@ -750,6 +876,230 @@ const Sync = (() => {
 
   return { save, load, startAutoRefresh, stopAutoRefresh };
 })();
+
+
+// ═══ RÉPERTOIRE MODULE ════════════════════════════════════════════════════════
+const Rep = (() => {
+
+  const STATUT_COLORS = {
+    'Confirmé':    'st-ok',
+    'En cours':    'st-pending',
+    'Contacté':    'st-contact',
+    'À contacter': 'st-none',
+    'Non dispo':   'st-contact',
+  };
+  function badge(s) {
+    const cls = STATUT_COLORS[s] || 'st-none';
+    return `<span class="status-badge ${cls}">${s||'—'}</span>`;
+  }
+  function esc(s) { return String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function setTab(btn, cat) {
+    document.querySelectorAll('.rep-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.rep-cat').forEach(d => d.style.display = 'none');
+    document.getElementById('rep-' + cat).style.display = '';
+  }
+
+  // ── RENDER ──────────────────────────────────────────────────────────────────
+  function render() {
+    const R = window.S.repertoire || { lieux:[], artistes:[], traiteurs:[], prestataires:[] };
+
+    // LIEUX
+    document.getElementById('tbody-lieux').innerHTML = R.lieux.map((r,i) => `
+      <tr>
+        <td><span class="status-badge st-none">${esc(r.type)}</span></td>
+        <td style="font-weight:600">${esc(r.nom)}</td>
+        <td style="font-size:12px">${esc(r.contact)}</td>
+        <td style="font-size:12px;color:#888">${esc(r.adresse)}</td>
+        <td>${badge(r.statut)}</td>
+        <td style="font-size:12px;max-width:200px">${esc(r.commentaires)}</td>
+        <td>
+          <button class="btn btn-sm" style="background:#f5ede0;color:#c8922a" onclick="Rep.edit('lieux',${i})">✏️</button>
+          <button class="btn btn-sm" style="background:#fad7d7;color:#b91c1c;margin-left:4px" onclick="Rep.del('lieux',${i})">🗑</button>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:20px">Aucun lieu enregistré</td></tr>';
+
+    // ARTISTES
+    document.getElementById('tbody-artistes').innerHTML = R.artistes.map((r,i) => `
+      <tr>
+        <td><span class="status-badge st-none">${esc(r.type)}</span></td>
+        <td style="font-weight:600">${esc(r.nom)}</td>
+        <td style="font-size:12px">${esc(r.contact)}</td>
+        <td style="font-size:12px">${esc(r.tarif)}</td>
+        <td>${badge(r.statut)}</td>
+        <td style="font-size:12px;max-width:200px">${esc(r.commentaires)}</td>
+        <td>
+          <button class="btn btn-sm" style="background:#f5ede0;color:#c8922a" onclick="Rep.edit('artistes',${i})">✏️</button>
+          <button class="btn btn-sm" style="background:#fad7d7;color:#b91c1c;margin-left:4px" onclick="Rep.del('artistes',${i})">🗑</button>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:20px">Aucun artiste enregistré</td></tr>';
+
+    // TRAITEURS
+    document.getElementById('tbody-traiteurs').innerHTML = R.traiteurs.map((r,i) => `
+      <tr>
+        <td style="font-weight:600">${esc(r.nom)}</td>
+        <td style="font-size:12px">${esc(r.contact)}</td>
+        <td style="font-size:12px">${esc(r.specialite)}</td>
+        <td style="font-size:12px">${esc(r.prix)}</td>
+        <td>${badge(r.statut)}</td>
+        <td style="font-size:12px;max-width:200px">${esc(r.commentaires)}</td>
+        <td>
+          <button class="btn btn-sm" style="background:#f5ede0;color:#c8922a" onclick="Rep.edit('traiteurs',${i})">✏️</button>
+          <button class="btn btn-sm" style="background:#fad7d7;color:#b91c1c;margin-left:4px" onclick="Rep.del('traiteurs',${i})">🗑</button>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:20px">Aucun traiteur enregistré</td></tr>';
+
+    // PRESTATAIRES
+    document.getElementById('tbody-prestataires').innerHTML = R.prestataires.map((r,i) => `
+      <tr>
+        <td style="font-weight:600">${esc(r.nom)}</td>
+        <td style="font-size:12px">${esc(r.service)}</td>
+        <td style="font-size:12px">${esc(r.contact)}</td>
+        <td style="font-size:12px">${esc(r.prix)}</td>
+        <td>${badge(r.statut)}</td>
+        <td style="font-size:12px;max-width:200px">${esc(r.commentaires)}</td>
+        <td>
+          <button class="btn btn-sm" style="background:#f5ede0;color:#c8922a" onclick="Rep.edit('prestataires',${i})">✏️</button>
+          <button class="btn btn-sm" style="background:#fad7d7;color:#b91c1c;margin-left:4px" onclick="Rep.del('prestataires',${i})">🗑</button>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:20px">Aucun prestataire enregistré</td></tr>';
+  }
+
+  // ── FIELDS config ───────────────────────────────────────────────────────────
+  const FIELDS = {
+    lieux: [
+      {k:'type',    label:'Type',        type:'select', opts:['Salle d'événement','Restaurant','Autre']},
+      {k:'nom',     label:'Nom / Lieu',  type:'text'},
+      {k:'contact', label:'Contact',     type:'text'},
+      {k:'adresse', label:'Adresse',     type:'text'},
+      {k:'statut',  label:'Statut',      type:'select', opts:['À contacter','Contacté','En cours','Confirmé','Non dispo']},
+      {k:'commentaires', label:'Commentaires', type:'textarea'},
+    ],
+    artistes: [
+      {k:'type',    label:'Type',        type:'select', opts:['Chanteur/Musicien','Comédien','DJ','Autre']},
+      {k:'nom',     label:'Nom',         type:'text'},
+      {k:'contact', label:'Contact',     type:'text'},
+      {k:'tarif',   label:'Tarif',       type:'text'},
+      {k:'statut',  label:'Statut',      type:'select', opts:['À contacter','Contacté','En cours','Confirmé']},
+      {k:'commentaires', label:'Commentaires', type:'textarea'},
+    ],
+    traiteurs: [
+      {k:'nom',        label:'Traiteur',     type:'text'},
+      {k:'contact',    label:'Contact',      type:'text'},
+      {k:'specialite', label:'Spécialité',   type:'text'},
+      {k:'prix',       label:'Prix estimé',  type:'text'},
+      {k:'statut',     label:'Statut',       type:'select', opts:['À contacter','Contacté','En cours','Confirmé']},
+      {k:'commentaires', label:'Commentaires', type:'textarea'},
+    ],
+    prestataires: [
+      {k:'nom',     label:'Prestataire',   type:'text'},
+      {k:'service', label:'Service',       type:'text'},
+      {k:'contact', label:'Contact',       type:'text'},
+      {k:'prix',    label:'Prix estimé',   type:'text'},
+      {k:'statut',  label:'Statut',        type:'select', opts:['À contacter','Contacté','En cours','Confirmé']},
+      {k:'commentaires', label:'Commentaires', type:'textarea'},
+    ],
+  };
+
+  // ── MODAL ADD/EDIT ──────────────────────────────────────────────────────────
+  function openModal(cat, idx) {
+    const R    = window.S.repertoire[cat];
+    const item = (idx !== undefined) ? {...R[idx]} : {};
+    const fields = FIELDS[cat];
+    const labels = {lieux:'Lieu', artistes:'Artiste', traiteurs:'Traiteur', prestataires:'Prestataire'};
+
+    const html = fields.map(f => {
+      const val = esc(item[f.k]||'');
+      if (f.type === 'select') {
+        const opts = f.opts.map(o => `<option value="${o}" ${item[f.k]===o?'selected':''}>${o}</option>`).join('');
+        return `<div class="mfg"><label>${f.label}</label><select id="rf-${f.k}">${opts}</select></div>`;
+      }
+      if (f.type === 'textarea') {
+        return `<div class="mfg"><label>${f.label}</label><textarea id="rf-${f.k}" rows="2">${val}</textarea></div>`;
+      }
+      return `<div class="mfg"><label>${f.label}</label><input id="rf-${f.k}" value="${val}" type="text"></div>`;
+    }).join('');
+
+    document.getElementById('mo-title').textContent = (idx!==undefined?'Modifier':'Ajouter') + ' — ' + labels[cat];
+    document.getElementById('mo-body').innerHTML = html;
+    document.getElementById('mo-save').onclick = () => saveModal(cat, idx, fields, R, item);
+    document.getElementById('modal').style.display = 'flex';
+  }
+
+  function saveModal(cat, idx, fields, R, item) {
+    const obj = {id: item.id || (R.length ? Math.max(...R.map(x=>x.id||0))+1 : 1)};
+    fields.forEach(f => {
+      const el = document.getElementById('rf-' + f.k);
+      obj[f.k] = el ? el.value.trim() : '';
+    });
+    if (idx !== undefined) R[idx] = obj;
+    else R.push(obj);
+    document.getElementById('modal').style.display = 'none';
+    render();
+    Sync.save();
+  }
+
+  function add(cat) { openModal(cat, undefined); }
+  function edit(cat, idx) { openModal(cat, idx); }
+  function del(cat, idx) {
+    if (!confirm('Supprimer cet élément ?')) return;
+    window.S.repertoire[cat].splice(idx, 1);
+    render();
+    Sync.save();
+  }
+
+  return { render, setTab, add, edit, del };
+})();
+
+// ── Export PDF ──────────────────────────────────────────────────────────────
+function exportRepertoirePDF() {
+  const R = window.S.repertoire || {};
+  const sections = [
+    { title: '🏛️ Lieux', headers: ['Type','Nom','Contact','Adresse','Statut','Commentaires'], rows: (R.lieux||[]).map(r=>[r.type,r.nom,r.contact,r.adresse,r.statut,r.commentaires]) },
+    { title: '🎤 Artistes', headers: ['Type','Nom','Contact','Tarif','Statut','Commentaires'], rows: (R.artistes||[]).map(r=>[r.type,r.nom,r.contact,r.tarif,r.statut,r.commentaires]) },
+    { title: '🍽️ Traiteurs', headers: ['Traiteur','Contact','Spécialité','Prix','Statut','Commentaires'], rows: (R.traiteurs||[]).map(r=>[r.nom,r.contact,r.specialite,r.prix,r.statut,r.commentaires]) },
+    { title: '🔧 Prestataires', headers: ['Prestataire','Service','Contact','Prix','Statut','Commentaires'], rows: (R.prestataires||[]).map(r=>[r.nom,r.service,r.contact,r.prix,r.statut,r.commentaires]) },
+  ];
+
+  let html = `<html><head><meta charset="UTF-8">
+  <style>
+    body{font-family:Arial,sans-serif;padding:30px;color:#1a1a1a}
+    h1{color:#c8922a;border-bottom:2px solid #c8922a;padding-bottom:8px}
+    h2{color:#1a1a1a;margin-top:28px;font-size:15px}
+    table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
+    th{background:#1a1a1a;color:white;padding:7px 10px;text-align:left}
+    td{padding:6px 10px;border-bottom:1px solid #eee}
+    tr:nth-child(even)td{background:#f9f9f9}
+    .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .date{color:#888;font-size:12px}
+  </style></head><body>
+  <div class="header">
+    <h1>📒 Répertoire — Club des Syriens</h1>
+    <span class="date">Exporté le ${new Date().toLocaleDateString('fr-FR')}</span>
+  </div>`;
+
+  sections.forEach(s => {
+    html += `<h2>${s.title}</h2><table><thead><tr>${s.headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>`;
+    if (!s.rows.length) html += `<tr><td colspan="${s.headers.length}" style="color:#aaa;text-align:center">Aucune donnée</td></tr>`;
+    s.rows.forEach(r => { html += `<tr>${r.map(c=>`<td>${c||'—'}</td>`).join('')}</tr>`; });
+    html += '</tbody></table>';
+  });
+  html += '</body></html>';
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => w.print(), 500);
+}
+
+// ── Export vers Google Sheets (ouvre le lien) ────────────────────────────────
+function exportRepertoireSheets() {
+  if (confirm('Synchroniser maintenant avec Google Sheets ?\n(Les données seront envoyées via Sync)')) {
+    Sync.save();
+    setTimeout(() => window.open('https://docs.google.com/spreadsheets/d/1D_2nVk_LXMrwkKF09r3GGLbG4TYkwkZIV5xcXc5APxc/edit', '_blank'), 1500);
+  }
+}
 
 window.syncSheets = Sync.save;
 
@@ -837,6 +1187,44 @@ function seedData() {
   window.S.venues = [
     {id:1,name:"Salle confirmée (partenaire Mona)",addr:"Paris, France",cap:200,price:0,status:"Confirmé",notes:"Prise en charge par l'entreprise de Mona. Flexible pour toutes les activités. Contact via Gufran."},
     {id:2,name:"Salle alternative (backup)",addr:"Paris",cap:150,price:800,status:"À visiter",notes:"À évaluer en cas de besoin"},
+  ];
+
+  // ── Répertoire seed data ──────────────────────────────────────────────────
+  window.S.repertoire = window.S.repertoire || { lieux: [], artistes: [], traiteurs: [], prestataires: [] };
+  if (!window.S.repertoire.lieux.length) window.S.repertoire.lieux = [
+    {id:1, type:"Salle d'événement", nom:"Maison de la Convivialité", contact:"12 Rue Maurice Grimaud, 75018 Paris", adresse:"12 Rue Maurice Grimaud, 75018 Paris", statut:"Contacté", commentaires:""},
+    {id:2, type:"Salle d'événement", nom:"Espace événementiel (rouge)", contact:"Sultan Salahine - Paris", adresse:"", statut:"Contacté", commentaires:"Non disponible - 150/pers min 80 pers"},
+    {id:3, type:"Restaurant", nom:"Le Hasard Ludique", contact:"128 av. de Saint-Ouen, 75017", adresse:"128 av. de Saint-Ouen, 75017 Paris", statut:"À contacter", commentaires:""},
+    {id:4, type:"Restaurant", nom:"Restaurant", contact:"75019 Paris", adresse:"75019 Paris", statut:"À contacter", commentaires:""},
+    {id:5, type:"Salle d'événement", nom:"Espace Multisalle", contact:"", adresse:"", statut:"À contacter", commentaires:""},
+    {id:6, type:"Salle d'événement", nom:"Espace Quartz", contact:"51 rue St-Maur, 75012 Paris", adresse:"51 rue St-Maur, 75012 Paris", statut:"Contacté", commentaires:""},
+    {id:7, type:"Salle d'événement", nom:"La Maraîche", contact:"188 rue de Paris, 93100 Montreuil", adresse:"188 rue de Paris, 93100 Montreuil", statut:"Confirmé", commentaires:""},
+    {id:8, type:"Autre", nom:"Architecture de la Convivialité", contact:"10 Rue Maurice Grimaud, 75018 Paris", adresse:"", statut:"À contacter", commentaires:""},
+    {id:9, type:"Autre", nom:"Réseau Jérémias Paris", contact:"Ile de Seine, Paris", adresse:"", statut:"À contacter", commentaires:""},
+    {id:10, type:"Salle d'événement", nom:"Fairofa", contact:"Rue du Bac Paris", adresse:"", statut:"À contacter", commentaires:""},
+  ];
+  if (!window.S.repertoire.artistes.length) window.S.repertoire.artistes = [
+    {id:1, type:"Chanteur/Musicien", nom:"Lena Shamamian", contact:"Contact Mouss Pouy", tarif:"", statut:"À contacter", commentaires:"En train de bosser un message pour lui en parler"},
+    {id:2, type:"Comédien", nom:"Monsieur Ward - Syrians comediants", contact:"", tarif:"", statut:"À contacter", commentaires:""},
+    {id:3, type:"Autre", nom:"DJ Becha", contact:"", tarif:"", statut:"À contacter", commentaires:""},
+    {id:4, type:"Chanteur/Musicien", nom:"Ranime", contact:"", tarif:"", statut:"À contacter", commentaires:""},
+    {id:5, type:"Comédien", nom:"", contact:"", tarif:"", statut:"À contacter", commentaires:""},
+    {id:6, type:"Chanteur/Musicien", nom:"Maher Njasr", contact:"", tarif:"", statut:"À contacter", commentaires:""},
+    {id:7, type:"Autre", nom:"Alaa Gabi", contact:"", tarif:"", statut:"À contacter", commentaires:""},
+  ];
+  if (!window.S.repertoire.traiteurs.length) window.S.repertoire.traiteurs = [
+    {id:1, nom:"Shawarma Nari", contact:"", specialite:"", prix:"", statut:"En cours", commentaires:"In Progress"},
+    {id:2, nom:"Sans", contact:"", specialite:"", prix:"", statut:"À contacter", commentaires:""},
+    {id:3, nom:"Hiala", contact:"", specialite:"", prix:"", statut:"À contacter", commentaires:""},
+    {id:4, nom:"Alepla", contact:"", specialite:"", prix:"", statut:"À contacter", commentaires:""},
+    {id:5, nom:"Randa", contact:"", specialite:"", prix:"", statut:"En cours", commentaires:"In Progress"},
+    {id:6, nom:"", contact:"", specialite:"", prix:"", statut:"À contacter", commentaires:""},
+  ];
+  if (!window.S.repertoire.prestataires.length) window.S.repertoire.prestataires = [
+    {id:1, nom:"Photo Booth", service:"Photo Booth", contact:"", prix:"", statut:"À contacter", commentaires:""},
+    {id:2, nom:"Sono / Lumière", service:"Technique scène", contact:"", prix:"", statut:"À contacter", commentaires:""},
+    {id:3, nom:"Photographe", service:"Photo/Vidéo", contact:"", prix:"", statut:"À contacter", commentaires:""},
+    {id:4, nom:"Décoration", service:"Décoration salle", contact:"", prix:"", statut:"À contacter", commentaires:""},
   ];
 
   window.S.volunteers = [
@@ -1129,6 +1517,7 @@ const Render = (() => {
     guests();
     badges();
     progChecklist();
+    if (typeof Rep !== "undefined") Rep.render();
   }
 
   return { all, dashboard, tasks, budget, venues, volunteers, providers, guests, badges, progChecklist, tglPc };
