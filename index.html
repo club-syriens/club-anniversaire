@@ -150,6 +150,17 @@ tr:hover td{background:var(--warm)}
 .ckr.done label{text-decoration:line-through;color:var(--muted)}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 
+/* ─── JSONBIN CONFIG NOTICE ─── */
+.cfg-notice{background:#fef3c7;border:2px solid #f59e0b;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;display:flex;align-items:flex-start;gap:12px}
+.cfg-notice a{color:#92400e;font-weight:700}
+.export-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:6px}
+.export-btn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 12px;border-radius:12px;border:2px solid var(--border);background:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:.15s}
+.export-btn:hover{border-color:var(--gold);background:var(--warm)}
+.export-btn .eico{font-size:28px}
+.export-btn.pdf{border-color:#dc2626}.export-btn.pdf:hover{background:#fef2f2}
+.export-btn.xl{border-color:#16a34a}.export-btn.xl:hover{background:#f0fdf4}
+.export-btn.csv{border-color:#2563eb}.export-btn.csv:hover{background:#eff6ff}
+
 /* ─── LOADING OVERLAY ─── */
 #loading-overlay{position:fixed;inset:0;background:rgba(12,12,12,0.9);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:'DM Sans',sans-serif;gap:16px}
 #loading-overlay .spin{width:48px;height:48px;border:3px solid rgba(255,255,255,.2);border-top-color:#e8b84b;border-radius:50%;animation:spin .8s linear infinite}
@@ -200,8 +211,9 @@ tr:hover td{background:var(--warm)}
     <div class="ni"        data-s="program"     onclick="UI.nav(this)"><span class="ic">🎭</span>Programme</div>
   </nav>
   <div class="sfoot">
-    <button class="sync-btn" onclick="Sync.save()">📊 Sync Google Sheets</button>
+    <button class="sync-btn" onclick="Sync.save()">☁️ Sauvegarder (JSONBin)</button>
     <div class="sync-st" id="sync-st">Dernière sync : jamais</div>
+    <button class="sync-btn" onclick="Export.openModal()" style="background:#1e40af;margin-top:6px">📤 Exporter</button>
   </div>
 </aside>
 
@@ -213,11 +225,18 @@ tr:hover td{background:var(--warm)}
   <div class="ph">
     <div><h1>Tableau de bord</h1><p>1er Anniversaire du Club des Syriens · 28 mars 2026</p></div>
   </div>
-  <div class="ibar">
-    <span style="font-size:22px">📊</span>
-    <div>Données synchronisées avec Google Sheets ·
-      <a href="https://docs.google.com/spreadsheets/d/1D_2nVk_LXMrwkKF09r3GGLbG4TYkwkZIV5xcXc5APxc/edit" target="_blank">Ouvrir Google Sheets</a> ·
-      <a href="https://drive.google.com/drive/folders/1fKIBJBPoYE9MMgBaLZtsKsqZzHlFesaF" target="_blank">Dossier Drive</a>
+  <div id="jsonbin-notice" class="cfg-notice" style="display:none">
+    <span style="font-size:22px">⚠️</span>
+    <div>
+      <strong>JSONBin non configuré</strong> — les données sont sauvegardées <em>uniquement en mémoire</em> (perdues au rechargement).<br>
+      <a href="https://jsonbin.io" target="_blank">Créer un compte JSONBin gratuit</a> puis renseigne ton <strong>BIN_ID</strong> et ta <strong>MASTER_KEY</strong> dans le fichier HTML (lignes window.JSONBIN_BIN_ID / window.JSONBIN_API_KEY).
+    </div>
+  </div>
+  <div id="jsonbin-ok" class="ibar" style="display:none">
+    <span style="font-size:22px">☁️</span>
+    <div>Données synchronisées avec <strong>JSONBin.io</strong> ·
+      <a href="https://drive.google.com/drive/folders/1fKIBJBPoYE9MMgBaLZtsKsqZzHlFesaF" target="_blank">Dossier Drive</a> ·
+      <a href="https://docs.google.com/spreadsheets/d/1D_2nVk_LXMrwkKF09r3GGLbG4TYkwkZIV5xcXc5APxc/edit" target="_blank">Google Sheets (export manuel)</a>
     </div>
   </div>
   <div class="sg">
@@ -602,6 +621,37 @@ tr:hover td{background:var(--warm)}
   </div>
 </div>
 
+<!-- ── MODAL EXPORT ───────────────────────────────────────────────────────── -->
+<div id="mo-export" class="mo" onclick="if(event.target.id==='mo-export') document.getElementById('mo-export').classList.remove('open')">
+  <div class="md" style="width:520px">
+    <h2>📤 Exporter les données</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:18px">Tous les onglets inclus : Tâches, Budget, Bénévoles, Prestataires, Invités, Lieux, Répertoire (4 catégories)</p>
+    <div class="export-grid">
+      <button class="export-btn pdf" onclick="Export.allPDF();document.getElementById('mo-export').classList.remove('open')">
+        <span class="eico">🖨️</span>
+        <span>PDF</span>
+        <span style="font-size:10px;color:var(--muted);font-weight:400">Impression propre</span>
+      </button>
+      <button class="export-btn xl" onclick="Export.allExcel();document.getElementById('mo-export').classList.remove('open')">
+        <span class="eico">📊</span>
+        <span>Excel</span>
+        <span style="font-size:10px;color:var(--muted);font-weight:400">.xlsx multi-onglets</span>
+      </button>
+      <button class="export-btn csv" onclick="Export.allCSV();document.getElementById('mo-export').classList.remove('open')">
+        <span class="eico">📄</span>
+        <span>CSV</span>
+        <span style="font-size:10px;color:var(--muted);font-weight:400">Universel</span>
+      </button>
+    </div>
+    <div style="margin-top:20px;padding:14px;background:var(--warm);border-radius:8px;font-size:12px;color:var(--muted)">
+      💡 <strong>Excel</strong> génère un fichier .xlsx avec un onglet par section · <strong>PDF</strong> ouvre la fenêtre d'impression de votre navigateur
+    </div>
+    <div class="ma">
+      <button class="btn btn-out" onclick="document.getElementById('mo-export').classList.remove('open')">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -609,8 +659,12 @@ tr:hover td{background:var(--warm)}
 <script>
 // ═══ CONFIG ═══
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
-// 🔧 METS TON URL GOOGLE APPS SCRIPT ICI
-window.API_URL = 'https://script.google.com/macros/s/AKfycbyWU8IHkcDVxhUy8nBsoHFh_dhQlehxplh_naSX6tk_UuugvrgbcKvtoUaFZgzPkXtgPQ/exec';
+// 🔧 JSONBin.io — Storage gratuit sans backend
+// 1. Va sur https://jsonbin.io → Sign up gratuit
+// 2. Crée un Bin avec {} comme contenu initial
+// 3. Copie le BIN_ID et la MASTER_KEY ici
+window.JSONBIN_BIN_ID  = '69a5a4f9ae596e708f5817d2';
+window.JSONBIN_API_KEY = '$2a$10$/vLiYeBC1ZX4YaVOlirOve9y/yzL/m9ka4XSbHpn565KL7AhPjEum';
 
 // ─── DÉPARTEMENTS ─────────────────────────────────────────────────────────────
 window.DEPTS = {
@@ -627,7 +681,7 @@ window.DEPTS = {
 };
 
 // ─── ÉTAT GLOBAL ──────────────────────────────────────────────────────────────
-window.S = { tasks:[], budget:[], venues:[], volunteers:[], providers:[], guests:[],
+window.S = { tasks:[], budget:[], venues:[], volunteers:[], providers:[], guests:[], repertoire:{lieux:[],artistes:[],traiteurs:[],prestataires:[]},
   repertoire: { lieux:[], artistes:[], traiteurs:[], prestataires:[] } };
 
 
@@ -726,15 +780,31 @@ function exportCSV() {
 
 
 // ═══ SYNC ═══
-// ─── SYNC MODULE v5 ───────────────────────────────────────────────────────────
-// POST avec Content-Type: text/plain → pas de preflight CORS
-// Apps Script accepte ce format sans bloquer
+// ─── SYNC MODULE v6 — JSONBin.io (sans CORS, gratuit) ────────────────────────
+// JSONBin stocke un seul objet JSON = tout l'état window.S
+// API : PUT  https://api.jsonbin.io/v3/b/{BIN_ID}  → sauvegarde
+//        GET  https://api.jsonbin.io/v3/b/{BIN_ID}/latest → lecture
 // ─────────────────────────────────────────────────────────────────────────────
 
 const Sync = (() => {
-  let isSyncing = false;
+  let isSyncing  = false;
   let pendingSave = false;
   let autoRefreshInterval = null;
+
+  const BASE = 'https://api.jsonbin.io/v3/b';
+
+  function headers() {
+    return {
+      'Content-Type':  'application/json',
+      'X-Master-Key':  window.JSONBIN_API_KEY,
+      'X-Bin-Versioning': 'false',   // pas de versioning → PUT écrase proprement
+    };
+  }
+
+  function isConfigured() {
+    return window.JSONBIN_BIN_ID  && window.JSONBIN_BIN_ID  !== 'REMPLACE_PAR_TON_BIN_ID'
+        && window.JSONBIN_API_KEY && window.JSONBIN_API_KEY !== 'REMPLACE_PAR_TA_MASTER_KEY';
+  }
 
   function setStatus(msg) {
     const el = document.getElementById('sync-st');
@@ -745,47 +815,44 @@ const Sync = (() => {
     if (btn) btn.disabled = disabled;
   }
 
-  // ── SAVE via POST text/plain (pas de preflight = pas de CORS) ─────────────
+  // ── SAVE ────────────────────────────────────────────────────────────────────
   async function save() {
+    if (!isConfigured()) {
+      setStatus('⚠️ JSONBin non configuré');
+      UI.showToast('⚠️ Configure JSONBin dans le code', 'err');
+      return;
+    }
     if (isSyncing) { pendingSave = true; return; }
     isSyncing = true;
     pendingSave = false;
     setBtn(true);
     setStatus('⏳ Sauvegarde...');
 
-    const payload = JSON.stringify({
-      action: 'writeAll',
-      data: {
-        Taches:       window.S.tasks,
-        Budget:       window.S.budget,
-        Benevoles:    window.S.volunteers,
-        Prestataires: window.S.providers,
-        Invites:      window.S.guests,
-        Lieux:        window.S.venues,
-        Repertoire:   window.S.repertoire ? [window.S.repertoire] : [],
-      }
-    });
+    const payload = {
+      tasks:       window.S.tasks,
+      budget:      window.S.budget,
+      venues:      window.S.venues,
+      volunteers:  window.S.volunteers,
+      providers:   window.S.providers,
+      guests:      window.S.guests,
+      repertoire:  window.S.repertoire,
+      savedAt:     new Date().toISOString(),
+    };
 
     try {
-      // text/plain ne déclenche pas de preflight OPTIONS → pas bloqué par CORS
-      const res = await fetch(window.API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-        body: payload,
+      const res = await fetch(`${BASE}/${window.JSONBIN_BIN_ID}`, {
+        method:  'PUT',
+        headers: headers(),
+        body:    JSON.stringify(payload),
       });
-      // En mode no-cors on ne peut pas lire la réponse, mais ça passe
-      setStatus('✅ ' + new Date().toLocaleTimeString('fr-FR'));
-      if (typeof UI !== 'undefined') UI.showToast('✅ Synchronisé !', 'ok');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const time = new Date().toLocaleTimeString('fr-FR');
+      setStatus('✅ ' + time);
+      UI.showToast('✅ Sauvegardé dans JSONBin !', 'ok');
     } catch(e) {
       console.error('[Sync] save failed', e);
-      // Fallback : envoyer onglet par onglet en GET (petits payloads seulement)
-      await saveSheetGet('Benevoles',    window.S.volunteers);
-      await saveSheetGet('Prestataires', window.S.providers);
-      await saveSheetGet('Invites',      window.S.guests);
-      await saveSheetGet('Lieux',        window.S.venues);
-      await saveSheetGet('Budget',       window.S.budget);
-      // Taches trop longues pour GET → on skip le fallback GET pour Taches
-      setStatus('⚠️ Sync partielle');
+      setStatus('❌ Erreur sauvegarde');
+      UI.showToast('❌ Erreur : ' + e.message, 'err');
     }
 
     isSyncing = false;
@@ -793,62 +860,46 @@ const Sync = (() => {
     if (pendingSave) await save();
   }
 
-  // Fallback GET pour petits onglets
-  async function saveSheetGet(sheetName, data) {
-    const encoded = encodeURIComponent(JSON.stringify(data));
-    if (encoded.length > 7000) return; // trop long pour GET → skip
-    const url = window.API_URL + '?action=write&sheet=' + sheetName + '&data=' + encoded;
-    try {
-      await fetch(url, { method: 'GET', mode: 'no-cors' });
-    } catch(e) {
-      console.warn('[Sync] GET fallback failed for ' + sheetName);
-    }
-  }
-
-  // ── LOAD ←────────────────────────────────────────────────────────────────
+  // ── LOAD ────────────────────────────────────────────────────────────────────
   async function load() {
+    if (!isConfigured()) {
+      setStatus('⚠️ JSONBin non configuré');
+      return false;
+    }
     setStatus('⏳ Chargement...');
     try {
-      const res = await fetch(window.API_URL + '?action=readAll');
+      const res = await fetch(`${BASE}/${window.JSONBIN_BIN_ID}/latest`, {
+        method:  'GET',
+        headers: { 'X-Master-Key': window.JSONBIN_API_KEY },
+      });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const json = await res.json();
+      const d    = json.record || {};
 
-      const tasks      = json.Taches       || [];
-      const budget     = json.Budget       || [];
-      const volunteers = json.Benevoles    || [];
-      const providers  = json.Prestataires || [];
-      const guests     = json.Invites      || [];
-      const venues     = json.Lieux        || [];
-
-      // Garde-fou : ne pas écraser si Sheets a moins de tâches qu'en mémoire
-      const currentCount = window.S.tasks.length;
-      if (tasks.length < currentCount && currentCount > 0) {
-        console.warn('[Sync] load aborted: Sheets=' + tasks.length + ' < Memory=' + currentCount);
-        setStatus('⚠️ Sync protégée (' + currentCount + ' tâches)');
+      // Garde-fou : ne pas écraser si JSONBin a moins de tâches qu'en mémoire
+      if ((d.tasks||[]).length < window.S.tasks.length && window.S.tasks.length > 0) {
+        console.warn('[Sync] load aborted: remote has fewer tasks');
+        setStatus('⚠️ Sync protégée');
+        return false;
+      }
+      // Données vides = premier lancement
+      if (!d.tasks || d.tasks.length === 0) {
+        setStatus('⚠️ Bin vide');
         return false;
       }
 
-      if (tasks.length === 0 && budget.length === 0 && volunteers.length === 0
-          && providers.length === 0 && guests.length === 0 && venues.length === 0) {
-        setStatus('⚠️ Sheets vide');
-        return false;
-      }
-
-      window.S.tasks      = tasks.map(t => ({...t, id: Number(t.id)||t.id}));
-      window.S.budget     = budget.map(b => ({...b, id: Number(b.id)||b.id, amount: parseFloat(b.amount)||0}));
-      window.S.volunteers = volunteers.map(v => ({...v, id: Number(v.id)||v.id}));
-      window.S.providers  = providers.map(p => ({...p, id: Number(p.id)||p.id, price: parseFloat(p.price)||0}));
-      window.S.guests     = guests.map(g => ({...g, id: Number(g.id)||g.id}));
-      window.S.venues      = venues.map(v => ({...v, id: Number(v.id)||v.id, cap: parseInt(v.cap)||0, price: parseFloat(v.price)||0}));
-      const repertoireArr = json.Repertoire || [];
-      if (repertoireArr.length > 0 && repertoireArr[0] && typeof repertoireArr[0] === 'object') {
-        const rep = repertoireArr[0];
-        // Fusionner avec le seed existant pour ne pas perdre les données
+      window.S.tasks      = d.tasks      || window.S.tasks;
+      window.S.budget     = d.budget     || window.S.budget;
+      window.S.venues     = d.venues     || window.S.venues;
+      window.S.volunteers = d.volunteers || window.S.volunteers;
+      window.S.providers  = d.providers  || window.S.providers;
+      window.S.guests     = d.guests     || window.S.guests;
+      if (d.repertoire) {
         window.S.repertoire = {
-          lieux:        Array.isArray(rep.lieux)        ? rep.lieux        : (window.S.repertoire?.lieux || []),
-          artistes:     Array.isArray(rep.artistes)     ? rep.artistes     : (window.S.repertoire?.artistes || []),
-          traiteurs:    Array.isArray(rep.traiteurs)    ? rep.traiteurs    : (window.S.repertoire?.traiteurs || []),
-          prestataires: Array.isArray(rep.prestataires) ? rep.prestataires : (window.S.repertoire?.prestataires || []),
+          lieux:        Array.isArray(d.repertoire.lieux)        ? d.repertoire.lieux        : window.S.repertoire.lieux,
+          artistes:     Array.isArray(d.repertoire.artistes)     ? d.repertoire.artistes     : window.S.repertoire.artistes,
+          traiteurs:    Array.isArray(d.repertoire.traiteurs)    ? d.repertoire.traiteurs    : window.S.repertoire.traiteurs,
+          prestataires: Array.isArray(d.repertoire.prestataires) ? d.repertoire.prestataires : window.S.repertoire.prestataires,
         };
       }
 
@@ -861,7 +912,7 @@ const Sync = (() => {
     }
   }
 
-  function startAutoRefresh(ms = 30000) {
+  function startAutoRefresh(ms = 60000) {
     if (autoRefreshInterval) clearInterval(autoRefreshInterval);
     autoRefreshInterval = setInterval(async () => {
       if (isSyncing) return;
@@ -874,232 +925,8 @@ const Sync = (() => {
     if (autoRefreshInterval) clearInterval(autoRefreshInterval);
   }
 
-  return { save, load, startAutoRefresh, stopAutoRefresh };
+  return { save, load, startAutoRefresh, stopAutoRefresh, isConfigured };
 })();
-
-
-// ═══ RÉPERTOIRE MODULE ════════════════════════════════════════════════════════
-const Rep = (() => {
-
-  const STATUT_COLORS = {
-    'Confirmé':    'st-ok',
-    'En cours':    'st-pending',
-    'Contacté':    'st-contact',
-    'À contacter': 'st-none',
-    'Non dispo':   'st-contact',
-  };
-  function badge(s) {
-    const cls = STATUT_COLORS[s] || 'st-none';
-    return `<span class="status-badge ${cls}">${s||'—'}</span>`;
-  }
-  function esc(s) { return String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-  function setTab(btn, cat) {
-    document.querySelectorAll('.rep-tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.rep-cat').forEach(d => d.style.display = 'none');
-    document.getElementById('rep-' + cat).style.display = '';
-  }
-
-  // ── RENDER ──────────────────────────────────────────────────────────────────
-  function render() {
-    const R = window.S.repertoire || { lieux:[], artistes:[], traiteurs:[], prestataires:[] };
-
-    // LIEUX
-    document.getElementById('tbody-lieux').innerHTML = R.lieux.map((r,i) => `
-      <tr>
-        <td><span class="status-badge st-none">${esc(r.type)}</span></td>
-        <td style="font-weight:600">${esc(r.nom)}</td>
-        <td style="font-size:12px">${esc(r.contact)}</td>
-        <td style="font-size:12px;color:#888">${esc(r.adresse)}</td>
-        <td>${badge(r.statut)}</td>
-        <td style="font-size:12px;max-width:200px">${esc(r.commentaires)}</td>
-        <td>
-          <button class="btn btn-sm" style="background:#f5ede0;color:#c8922a" onclick="Rep.edit('lieux',${i})">✏️</button>
-          <button class="btn btn-sm" style="background:#fad7d7;color:#b91c1c;margin-left:4px" onclick="Rep.del('lieux',${i})">🗑</button>
-        </td>
-      </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:20px">Aucun lieu enregistré</td></tr>';
-
-    // ARTISTES
-    document.getElementById('tbody-artistes').innerHTML = R.artistes.map((r,i) => `
-      <tr>
-        <td><span class="status-badge st-none">${esc(r.type)}</span></td>
-        <td style="font-weight:600">${esc(r.nom)}</td>
-        <td style="font-size:12px">${esc(r.contact)}</td>
-        <td style="font-size:12px">${esc(r.tarif)}</td>
-        <td>${badge(r.statut)}</td>
-        <td style="font-size:12px;max-width:200px">${esc(r.commentaires)}</td>
-        <td>
-          <button class="btn btn-sm" style="background:#f5ede0;color:#c8922a" onclick="Rep.edit('artistes',${i})">✏️</button>
-          <button class="btn btn-sm" style="background:#fad7d7;color:#b91c1c;margin-left:4px" onclick="Rep.del('artistes',${i})">🗑</button>
-        </td>
-      </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:20px">Aucun artiste enregistré</td></tr>';
-
-    // TRAITEURS
-    document.getElementById('tbody-traiteurs').innerHTML = R.traiteurs.map((r,i) => `
-      <tr>
-        <td style="font-weight:600">${esc(r.nom)}</td>
-        <td style="font-size:12px">${esc(r.contact)}</td>
-        <td style="font-size:12px">${esc(r.specialite)}</td>
-        <td style="font-size:12px">${esc(r.prix)}</td>
-        <td>${badge(r.statut)}</td>
-        <td style="font-size:12px;max-width:200px">${esc(r.commentaires)}</td>
-        <td>
-          <button class="btn btn-sm" style="background:#f5ede0;color:#c8922a" onclick="Rep.edit('traiteurs',${i})">✏️</button>
-          <button class="btn btn-sm" style="background:#fad7d7;color:#b91c1c;margin-left:4px" onclick="Rep.del('traiteurs',${i})">🗑</button>
-        </td>
-      </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:20px">Aucun traiteur enregistré</td></tr>';
-
-    // PRESTATAIRES
-    document.getElementById('tbody-prestataires').innerHTML = R.prestataires.map((r,i) => `
-      <tr>
-        <td style="font-weight:600">${esc(r.nom)}</td>
-        <td style="font-size:12px">${esc(r.service)}</td>
-        <td style="font-size:12px">${esc(r.contact)}</td>
-        <td style="font-size:12px">${esc(r.prix)}</td>
-        <td>${badge(r.statut)}</td>
-        <td style="font-size:12px;max-width:200px">${esc(r.commentaires)}</td>
-        <td>
-          <button class="btn btn-sm" style="background:#f5ede0;color:#c8922a" onclick="Rep.edit('prestataires',${i})">✏️</button>
-          <button class="btn btn-sm" style="background:#fad7d7;color:#b91c1c;margin-left:4px" onclick="Rep.del('prestataires',${i})">🗑</button>
-        </td>
-      </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:20px">Aucun prestataire enregistré</td></tr>';
-  }
-
-  // ── FIELDS config ───────────────────────────────────────────────────────────
-  const FIELDS = {
-    lieux: [
-      {k:'type',    label:'Type',        type:'select', opts:['Salle de réception','Restaurant','Autre']},
-      {k:'nom',     label:'Nom / Lieu',  type:'text'},
-      {k:'contact', label:'Contact',     type:'text'},
-      {k:'adresse', label:'Adresse',     type:'text'},
-      {k:'statut',  label:'Statut',      type:'select', opts:['À contacter','Contacté','En cours','Confirmé','Non dispo']},
-      {k:'commentaires', label:'Commentaires', type:'textarea'},
-    ],
-    artistes: [
-      {k:'type',    label:'Type',        type:'select', opts:['Chanteur/Musicien','Comédien','DJ','Autre']},
-      {k:'nom',     label:'Nom',         type:'text'},
-      {k:'contact', label:'Contact',     type:'text'},
-      {k:'tarif',   label:'Tarif',       type:'text'},
-      {k:'statut',  label:'Statut',      type:'select', opts:['À contacter','Contacté','En cours','Confirmé']},
-      {k:'commentaires', label:'Commentaires', type:'textarea'},
-    ],
-    traiteurs: [
-      {k:'nom',        label:'Traiteur',     type:'text'},
-      {k:'contact',    label:'Contact',      type:'text'},
-      {k:'specialite', label:'Spécialité',   type:'text'},
-      {k:'prix',       label:'Prix estimé',  type:'text'},
-      {k:'statut',     label:'Statut',       type:'select', opts:['À contacter','Contacté','En cours','Confirmé']},
-      {k:'commentaires', label:'Commentaires', type:'textarea'},
-    ],
-    prestataires: [
-      {k:'nom',     label:'Prestataire',   type:'text'},
-      {k:'service', label:'Service',       type:'text'},
-      {k:'contact', label:'Contact',       type:'text'},
-      {k:'prix',    label:'Prix estimé',   type:'text'},
-      {k:'statut',  label:'Statut',        type:'select', opts:['À contacter','Contacté','En cours','Confirmé']},
-      {k:'commentaires', label:'Commentaires', type:'textarea'},
-    ],
-  };
-
-  // ── MODAL ADD/EDIT ──────────────────────────────────────────────────────────
-  function openModal(cat, idx) {
-    const R    = window.S.repertoire[cat];
-    const item = (idx !== undefined) ? {...R[idx]} : {};
-    const fields = FIELDS[cat];
-    const labels = {lieux:'Lieu', artistes:'Artiste', traiteurs:'Traiteur', prestataires:'Prestataire'};
-
-    const html = fields.map(f => {
-      const val = esc(item[f.k]||'');
-      if (f.type === 'select') {
-        const opts = f.opts.map(o => `<option value="${o}" ${item[f.k]===o?'selected':''}>${o}</option>`).join('');
-        return `<div class="mfg"><label>${f.label}</label><select id="rf-${f.k}">${opts}</select></div>`;
-      }
-      if (f.type === 'textarea') {
-        return `<div class="mfg"><label>${f.label}</label><textarea id="rf-${f.k}" rows="2">${val}</textarea></div>`;
-      }
-      return `<div class="mfg"><label>${f.label}</label><input id="rf-${f.k}" value="${val}" type="text"></div>`;
-    }).join('');
-
-    document.getElementById('mo-title').textContent = (idx!==undefined?'Modifier':'Ajouter') + ' — ' + labels[cat];
-    document.getElementById('mo-body').innerHTML = html;
-    document.getElementById('mo-save').onclick = () => saveModal(cat, idx, fields, R, item);
-    document.getElementById('modal').style.display = 'flex';
-  }
-
-  function saveModal(cat, idx, fields, R, item) {
-    const obj = {id: item.id || (R.length ? Math.max(...R.map(x=>x.id||0))+1 : 1)};
-    fields.forEach(f => {
-      const el = document.getElementById('rf-' + f.k);
-      obj[f.k] = el ? el.value.trim() : '';
-    });
-    if (idx !== undefined) R[idx] = obj;
-    else R.push(obj);
-    document.getElementById('modal').style.display = 'none';
-    render();
-    Sync.save();
-  }
-
-  function add(cat) { openModal(cat, undefined); }
-  function edit(cat, idx) { openModal(cat, idx); }
-  function del(cat, idx) {
-    if (!confirm('Supprimer cet élément ?')) return;
-    window.S.repertoire[cat].splice(idx, 1);
-    render();
-    Sync.save();
-  }
-
-  return { render, setTab, add, edit, del };
-})();
-
-// ── Export PDF ──────────────────────────────────────────────────────────────
-function exportRepertoirePDF() {
-  const R = window.S.repertoire || {};
-  const sections = [
-    { title: '🏛️ Lieux', headers: ['Type','Nom','Contact','Adresse','Statut','Commentaires'], rows: (R.lieux||[]).map(r=>[r.type,r.nom,r.contact,r.adresse,r.statut,r.commentaires]) },
-    { title: '🎤 Artistes', headers: ['Type','Nom','Contact','Tarif','Statut','Commentaires'], rows: (R.artistes||[]).map(r=>[r.type,r.nom,r.contact,r.tarif,r.statut,r.commentaires]) },
-    { title: '🍽️ Traiteurs', headers: ['Traiteur','Contact','Spécialité','Prix','Statut','Commentaires'], rows: (R.traiteurs||[]).map(r=>[r.nom,r.contact,r.specialite,r.prix,r.statut,r.commentaires]) },
-    { title: '🔧 Prestataires', headers: ['Prestataire','Service','Contact','Prix','Statut','Commentaires'], rows: (R.prestataires||[]).map(r=>[r.nom,r.service,r.contact,r.prix,r.statut,r.commentaires]) },
-  ];
-
-  let html = `<html><head><meta charset="UTF-8">
-  <style>
-    body{font-family:Arial,sans-serif;padding:30px;color:#1a1a1a}
-    h1{color:#c8922a;border-bottom:2px solid #c8922a;padding-bottom:8px}
-    h2{color:#1a1a1a;margin-top:28px;font-size:15px}
-    table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
-    th{background:#1a1a1a;color:white;padding:7px 10px;text-align:left}
-    td{padding:6px 10px;border-bottom:1px solid #eee}
-    tr:nth-child(even)td{background:#f9f9f9}
-    .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-    .date{color:#888;font-size:12px}
-  </style></head><body>
-  <div class="header">
-    <h1>📒 Répertoire — Club des Syriens</h1>
-    <span class="date">Exporté le ${new Date().toLocaleDateString('fr-FR')}</span>
-  </div>`;
-
-  sections.forEach(s => {
-    html += `<h2>${s.title}</h2><table><thead><tr>${s.headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>`;
-    if (!s.rows.length) html += `<tr><td colspan="${s.headers.length}" style="color:#aaa;text-align:center">Aucune donnée</td></tr>`;
-    s.rows.forEach(r => { html += `<tr>${r.map(c=>`<td>${c||'—'}</td>`).join('')}</tr>`; });
-    html += '</tbody></table>';
-  });
-  html += '</body></html>';
-
-  const w = window.open('', '_blank');
-  w.document.write(html);
-  w.document.close();
-  setTimeout(() => w.print(), 500);
-}
-
-// ── Export vers Google Sheets (ouvre le lien) ────────────────────────────────
-function exportRepertoireSheets() {
-  if (confirm('Synchroniser maintenant avec Google Sheets ?\n(Les données seront envoyées via Sync)')) {
-    Sync.save();
-    setTimeout(() => window.open('https://docs.google.com/spreadsheets/d/1D_2nVk_LXMrwkKF09r3GGLbG4TYkwkZIV5xcXc5APxc/edit', '_blank'), 1500);
-  }
-}
 
 window.syncSheets = Sync.save;
 
@@ -1248,6 +1075,31 @@ function seedData() {
   ];
 
   window.S.guests = [];
+  window.S.repertoire = {
+    lieux: [
+      {id:1,  type:"Salle de réception", nom:"Maison de la Convivialité",     contact:"12 Rue Maurice Grimaud, 75018", adresse:"Paris 18e",           statut:"Contacté",  commentaires:""},
+      {id:2,  type:"Salle de réception", nom:"Espace événementiel Sultan",     contact:"Sultan Salahine",               adresse:"Paris",               statut:"Contacté",  commentaires:"Non disponible - 150/pers min 80"},
+      {id:3,  type:"Salle de réception", nom:"La Maraîche",                    contact:"188 rue de Paris",              adresse:"93100 Montreuil",     statut:"Confirmé",  commentaires:""},
+      {id:4,  type:"Restaurant",         nom:"Iwan",                           contact:"",                              adresse:"Paris",               statut:"Contacté",  commentaires:""},
+      {id:5,  type:"Restaurant",         nom:"Rose de Damas",                  contact:"",                              adresse:"Paris",               statut:"À contacter",commentaires:""},
+    ],
+    artistes: [
+      {id:1, type:"Chanteur/Musicien", nom:"Lena Shamamian",              contact:"Contact Mouss Pouy", tarif:"",        statut:"À contacter", commentaires:"En train de bosser un message"},
+      {id:2, type:"Comédien",          nom:"Monsieur Ward — Syrians",     contact:"",                   tarif:"200€",    statut:"À contacter", commentaires:"Stand-up intégration syrienne"},
+      {id:3, type:"Autre",             nom:"DJ Becha",                    contact:"",                   tarif:"",        statut:"À contacter", commentaires:""},
+    ],
+    traiteurs: [
+      {id:1, nom:"Shawarma Nari",  contact:"", specialite:"Shawarma",        prix:"",     statut:"En cours",   commentaires:"In Progress"},
+      {id:2, nom:"Randa",          contact:"", specialite:"Cuisine syrienne", prix:"",    statut:"En cours",   commentaires:"In Progress"},
+      {id:3, nom:"Traiteur TBD",   contact:"", specialite:"Buffet syrien",    prix:"2500€",statut:"À contacter",commentaires:"Buffet inclus ticket 25€"},
+    ],
+    prestataires: [
+      {id:1, nom:"Photo Booth",       service:"Photo Booth",       contact:"", prix:"",    statut:"À contacter", commentaires:"Décor drapeau syrien"},
+      {id:2, nom:"Sono / Lumière",    service:"Technique scène",   contact:"", prix:"",    statut:"À contacter", commentaires:""},
+      {id:3, nom:"Photographe",       service:"Photo / Vidéo",     contact:"", prix:"",    statut:"À contacter", commentaires:""},
+    ],
+  };
+
 }
 
 
@@ -1752,6 +1604,414 @@ const Forms = (() => {
 })();
 
 
+
+
+// ═══ RÉPERTOIRE ═══
+// ─── REP MODULE ───────────────────────────────────────────────────────────────
+// Gestion du répertoire : Lieux, Artistes, Traiteurs, Prestataires
+// ─────────────────────────────────────────────────────────────────────────────
+
+const Rep = (() => {
+
+  // ── Config colonnes par catégorie ─────────────────────────────────────────
+  const FIELDS = {
+    lieux: [
+      {k:'type',         label:'Type',          type:'select', opts:['Salle de réception','Restaurant','Autre']},
+      {k:'nom',          label:'Nom / Lieu',    type:'text'},
+      {k:'contact',      label:'Contact',       type:'text'},
+      {k:'adresse',      label:'Adresse',       type:'text'},
+      {k:'statut',       label:'Statut',        type:'select', opts:['À contacter','Contacté','En cours','Confirmé','Non dispo']},
+      {k:'commentaires', label:'Commentaires',  type:'textarea'},
+    ],
+    artistes: [
+      {k:'type',         label:'Type',          type:'select', opts:['Chanteur/Musicien','Comédien','DJ','Autre']},
+      {k:'nom',          label:'Nom',           type:'text'},
+      {k:'contact',      label:'Contact',       type:'text'},
+      {k:'tarif',        label:'Tarif',         type:'text'},
+      {k:'statut',       label:'Statut',        type:'select', opts:['À contacter','Contacté','En cours','Confirmé']},
+      {k:'commentaires', label:'Commentaires',  type:'textarea'},
+    ],
+    traiteurs: [
+      {k:'nom',          label:'Traiteur',      type:'text'},
+      {k:'contact',      label:'Contact',       type:'text'},
+      {k:'specialite',   label:'Spécialité',    type:'text'},
+      {k:'prix',         label:'Prix estimé',   type:'text'},
+      {k:'statut',       label:'Statut',        type:'select', opts:['À contacter','Contacté','En cours','Confirmé']},
+      {k:'commentaires', label:'Commentaires',  type:'textarea'},
+    ],
+    prestataires: [
+      {k:'nom',          label:'Prestataire',   type:'text'},
+      {k:'service',      label:'Service',       type:'text'},
+      {k:'contact',      label:'Contact',       type:'text'},
+      {k:'prix',         label:'Prix estimé',   type:'text'},
+      {k:'statut',       label:'Statut',        type:'select', opts:['À contacter','Contacté','En cours','Confirmé']},
+      {k:'commentaires', label:'Commentaires',  type:'textarea'},
+    ],
+  };
+
+  const HEADERS = {
+    lieux:        ['Type','Nom / Lieu','Contact','Adresse','Statut','Commentaires'],
+    artistes:     ['Type','Nom','Contact','Tarif','Statut','Commentaires'],
+    traiteurs:    ['Traiteur','Contact','Spécialité','Prix estimé','Statut','Commentaires'],
+    prestataires: ['Prestataire','Service','Contact','Prix estimé','Statut','Commentaires'],
+  };
+
+  const STATUS_CLS = {
+    'Confirmé':   'st-ok',
+    'En cours':   'st-prog',
+    'Contacté':   'st-contact',
+    'À contacter':'st-none',
+    'Non dispo':  'st-canc',
+  };
+
+  // ── Render toutes les catégories ──────────────────────────────────────────
+  function render() {
+    const rep = window.S.repertoire || {lieux:[],artistes:[],traiteurs:[],prestataires:[]};
+    ['lieux','artistes','traiteurs','prestataires'].forEach(cat => {
+      const tbody = document.getElementById('tbody-' + cat);
+      if (!tbody) return;
+      const rows  = rep[cat] || [];
+      const flds  = FIELDS[cat];
+      tbody.innerHTML = rows.length === 0
+        ? `<tr><td colspan="${flds.length + 1}" style="text-align:center;color:var(--muted);padding:20px">Aucune entrée — cliquez + Ajouter</td></tr>`
+        : rows.map((row, idx) => `<tr>
+            ${flds.map(f => `<td>${f.k === 'statut'
+              ? `<span class="status-badge ${STATUS_CLS[row[f.k]]||'st-none'}">${row[f.k]||'—'}</span>`
+              : (row[f.k] || '—')}</td>`).join('')}
+            <td><div class="actb">
+              <button class="icb" onclick="Rep.edit('${cat}',${idx})" title="Modifier">✏️</button>
+              <button class="icb del" onclick="Rep.del('${cat}',${idx})" title="Supprimer">🗑️</button>
+            </div></td>
+          </tr>`).join('');
+    });
+  }
+
+  // ── Changer d'onglet ──────────────────────────────────────────────────────
+  function setTab(btn, cat) {
+    document.querySelectorAll('.rep-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.rep-cat').forEach(d => d.style.display = 'none');
+    const el = document.getElementById('rep-' + cat);
+    if (el) el.style.display = 'block';
+  }
+
+  // ── Modal générique ───────────────────────────────────────────────────────
+  function openModal(cat, idx) {
+    const rep    = window.S.repertoire || {};
+    const R      = rep[cat] || [];
+    const item   = idx !== undefined ? {...R[idx]} : {};
+    const fields = FIELDS[cat];
+    const LABELS = {lieux:'Lieu',artistes:'Artiste',traiteurs:'Traiteur',prestataires:'Prestataire'};
+
+    document.getElementById('mo-title').textContent =
+      (idx !== undefined ? 'Modifier' : 'Ajouter') + ' — ' + LABELS[cat];
+
+    document.getElementById('mo-body').innerHTML = fields.map(f => `
+      <div class="mfg">
+        <label>${f.label}</label>
+        ${f.type === 'select'
+          ? `<select id="mf-${f.k}">${(f.opts||[]).map(o => `<option value="${o}" ${item[f.k]===o?'selected':''}>${o}</option>`).join('')}</select>`
+          : f.type === 'textarea'
+          ? `<textarea id="mf-${f.k}" rows="2">${item[f.k]||''}</textarea>`
+          : `<input id="mf-${f.k}" type="text" value="${item[f.k]||''}">`
+        }
+      </div>`).join('');
+
+    document.getElementById('mo-save').onclick = () => saveModal(cat, idx, fields, R, item);
+    document.getElementById('modal').style.display = 'flex';
+  }
+
+  function saveModal(cat, idx, fields, R, item) {
+    const obj = {id: item.id || (R.length ? Math.max(...R.map(x => x.id||0)) + 1 : 1)};
+    fields.forEach(f => { obj[f.k] = (document.getElementById('mf-' + f.k)?.value || '').trim(); });
+    if (!window.S.repertoire) window.S.repertoire = {lieux:[],artistes:[],traiteurs:[],prestataires:[]};
+    if (!window.S.repertoire[cat]) window.S.repertoire[cat] = [];
+    if (idx !== undefined) window.S.repertoire[cat][idx] = obj;
+    else window.S.repertoire[cat].push(obj);
+    document.getElementById('modal').style.display = 'none';
+    render();
+    Sync.save();
+    UI.showToast('✅ Enregistré !', 'ok');
+  }
+
+  function add(cat)       { openModal(cat, undefined); }
+  function edit(cat, idx) { openModal(cat, idx); }
+  function del(cat, idx)  {
+    if (!confirm('Confirmer la suppression ?')) return;
+    window.S.repertoire[cat].splice(idx, 1);
+    render();
+    Sync.save();
+    UI.showToast('Supprimé', 'ok');
+  }
+
+  return { render, setTab, add, edit, del };
+})();
+
+// ── Exports répertoire legacy ─────────────────────────────────────────────────
+function exportRepertoirePDF() { Export.allPDF(); }
+function exportRepertoireSheets() {
+  Sync.save();
+  window.open('https://docs.google.com/spreadsheets/d/1D_2nVk_LXMrwkKF09r3GGLbG4TYkwkZIV5xcXc5APxc/edit');
+}
+
+// ═══ EXPORT ═══
+// ─── EXPORT MODULE — PDF, Excel (.xlsx), CSV ─────────────────────────────────
+// Tout se fait côté navigateur, sans serveur
+// Excel : SheetJS (CDN), PDF : window.print() avec CSS @media print
+// ─────────────────────────────────────────────────────────────────────────────
+
+const Export = (() => {
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function fmtAmt(n) { return (n || 0).toLocaleString('fr-FR') + ' €'; }
+  function fmtDate(d) { return d ? new Date(d).toLocaleDateString('fr-FR') : ''; }
+
+  // ── CSV (download direct) ─────────────────────────────────────────────────
+  function downloadCSV(filename, rows) {
+    const csv = rows.map(r => r.map(c => '"' + String(c||'').replace(/"/g,'""') + '"').join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = filename;
+    a.click();
+  }
+
+  function allCSV() {
+    const { tasks, budget, volunteers, providers, guests, venues, repertoire } = window.S;
+    // Une archive ZIP serait idéale mais on fait un CSV combiné avec sections
+    const rows = [
+      ['=== TÂCHES ==='],
+      ['Titre FR','Département','Responsable','Bénévoles','Échéance','Statut','Notes'],
+      ...tasks.map(t => [t.fr, window.DEPTS[t.dept]?.fr||t.dept, t.owner||'', t.vols||'', fmtDate(t.date), t.status==='منجز'?'Terminée':t.status==='قيد الانجاز'?'En cours':'Non commencée', t.notes||'']),
+      [''],
+      ['=== BUDGET ==='],
+      ['Description','Catégorie','Type','Montant','Statut'],
+      ...budget.map(b => [b.desc, b.cat, b.type, b.amount, b.status]),
+      [''],
+      ['=== BÉNÉVOLES ==='],
+      ['Nom','Rôle','Email','Téléphone','Disponibilité'],
+      ...volunteers.map(v => [v.name, v.role||'', v.email||'', v.phone||'', v.avail]),
+      [''],
+      ['=== PRESTATAIRES ==='],
+      ['Nom','Catégorie','Contact','Prix','Statut','Notes'],
+      ...providers.map(p => [p.name, p.cat, p.contact||'', p.price||0, p.status, p.notes||'']),
+      [''],
+      ['=== INVITÉS ==='],
+      ['Nom','Email','Téléphone','Statut','Ticket','Notes'],
+      ...guests.map(g => [g.name, g.email||'', g.phone||'', g.status, g.ticket, g.notes||'']),
+      [''],
+      ['=== LIEUX ==='],
+      ['Nom','Adresse','Capacité','Prix','Statut','Notes'],
+      ...venues.map(v => [v.name, v.addr||'', v.cap||'', v.price||0, v.status, v.notes||'']),
+      [''],
+      ['=== RÉPERTOIRE - LIEUX ==='],
+      ['Type','Nom','Contact','Adresse','Statut','Commentaires'],
+      ...(repertoire.lieux||[]).map(l => [l.type||'', l.nom||'', l.contact||'', l.adresse||'', l.statut||'', l.commentaires||'']),
+      [''],
+      ['=== RÉPERTOIRE - ARTISTES ==='],
+      ['Type','Nom','Contact','Tarif','Statut','Commentaires'],
+      ...(repertoire.artistes||[]).map(a => [a.type||'', a.nom||'', a.contact||'', a.tarif||'', a.statut||'', a.commentaires||'']),
+      [''],
+      ['=== RÉPERTOIRE - TRAITEURS ==='],
+      ['Nom','Contact','Spécialité','Prix','Statut','Commentaires'],
+      ...(repertoire.traiteurs||[]).map(t => [t.nom||'', t.contact||'', t.specialite||'', t.prix||'', t.statut||'', t.commentaires||'']),
+      [''],
+      ['=== RÉPERTOIRE - PRESTATAIRES ==='],
+      ['Nom','Service','Contact','Prix','Statut','Commentaires'],
+      ...(repertoire.prestataires||[]).map(p => [p.nom||'', p.service||'', p.contact||'', p.prix||'', p.statut||'', p.commentaires||'']),
+    ];
+    downloadCSV('club_syriens_export_' + new Date().toISOString().slice(0,10) + '.csv', rows);
+    UI.showToast('📄 CSV exporté !', 'ok');
+  }
+
+  // ── EXCEL (.xlsx via SheetJS) ──────────────────────────────────────────────
+  async function allExcel() {
+    // Charger SheetJS dynamiquement si pas encore chargé
+    if (!window.XLSX) {
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+    }
+    const { tasks, budget, volunteers, providers, guests, venues, repertoire } = window.S;
+    const wb = XLSX.utils.book_new();
+
+    // Tâches
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Titre FR','Titre AR','Département','Responsable','Bénévoles','Échéance','Statut','Notes'],
+      ...tasks.map(t => [t.fr, t.ar||'', window.DEPTS[t.dept]?.fr||t.dept, t.owner||'', t.vols||'', t.date||'', t.status==='منجز'?'Terminée':t.status==='قيد الانجاز'?'En cours':'Non commencée', t.notes||''])
+    ]), 'Tâches');
+
+    // Budget
+    const inc = budget.filter(b=>b.type==='Revenu').reduce((s,b)=>s+b.amount,0);
+    const exp = budget.filter(b=>b.type==='Dépense').reduce((s,b)=>s+b.amount,0);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Description','Catégorie','Type','Montant (€)','Statut'],
+      ...budget.map(b => [b.desc, b.cat, b.type, b.amount, b.status]),
+      [''],
+      ['Total Revenus', '', '', inc, ''],
+      ['Total Dépenses','', '', exp, ''],
+      ['Solde',         '', '', inc-exp, ''],
+    ]), 'Budget');
+
+    // Bénévoles
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Nom','Rôle / Département','Email','Téléphone','Disponibilité'],
+      ...volunteers.map(v => [v.name, v.role||'', v.email||'', v.phone||'', v.avail])
+    ]), 'Bénévoles');
+
+    // Prestataires
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Nom','Catégorie','Contact','Prix (€)','Statut','Notes'],
+      ...providers.map(p => [p.name, p.cat, p.contact||'', p.price||0, p.status, p.notes||''])
+    ]), 'Prestataires');
+
+    // Invités
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Nom','Email','Téléphone','Statut','Ticket payé','Notes'],
+      ...guests.map(g => [g.name, g.email||'', g.phone||'', g.status, g.ticket, g.notes||''])
+    ]), 'Invités');
+
+    // Lieux
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Nom','Adresse','Capacité','Prix (€)','Statut','Notes'],
+      ...venues.map(v => [v.name, v.addr||'', v.cap||'', v.price||0, v.status, v.notes||''])
+    ]), 'Lieux');
+
+    // Répertoire - 4 onglets
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Type','Nom','Contact','Adresse','Statut','Commentaires'],
+      ...(repertoire.lieux||[]).map(l => [l.type||'', l.nom||'', l.contact||'', l.adresse||'', l.statut||'', l.commentaires||''])
+    ]), 'Rép. Lieux');
+
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Type','Nom','Contact','Tarif','Statut','Commentaires'],
+      ...(repertoire.artistes||[]).map(a => [a.type||'', a.nom||'', a.contact||'', a.tarif||'', a.statut||'', a.commentaires||''])
+    ]), 'Rép. Artistes');
+
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Nom','Contact','Spécialité','Prix','Statut','Commentaires'],
+      ...(repertoire.traiteurs||[]).map(t => [t.nom||'', t.contact||'', t.specialite||'', t.prix||'', t.statut||'', t.commentaires||''])
+    ]), 'Rép. Traiteurs');
+
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Nom','Service','Contact','Prix','Statut','Commentaires'],
+      ...(repertoire.prestataires||[]).map(p => [p.nom||'', p.service||'', p.contact||'', p.prix||'', p.statut||'', p.commentaires||''])
+    ]), 'Rép. Prestataires');
+
+    XLSX.writeFile(wb, 'club_syriens_' + new Date().toISOString().slice(0,10) + '.xlsx');
+    UI.showToast('📊 Excel exporté !', 'ok');
+  }
+
+  // ── PDF (print CSS) ────────────────────────────────────────────────────────
+  function allPDF() {
+    const { tasks, budget, volunteers, providers, guests, venues, repertoire } = window.S;
+    const inc = budget.filter(b=>b.type==='Revenu').reduce((s,b)=>s+b.amount,0);
+    const exp = budget.filter(b=>b.type==='Dépense').reduce((s,b)=>s+b.amount,0);
+
+    function section(title, headers, rows) {
+      return `<div class="ps">
+        <h2>${title}</h2>
+        <table>
+          <thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+          <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c||'—'}</td>`).join('')}</tr>`).join('')}</tbody>
+        </table>
+      </div>`;
+    }
+
+    const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+    <title>Club des Syriens — Export complet — ${new Date().toLocaleDateString('fr-FR')}</title>
+    <style>
+      body{font-family:Georgia,serif;font-size:11px;color:#111;margin:0;padding:20px}
+      h1{font-size:20px;text-align:center;border-bottom:3px solid #c8922a;padding-bottom:10px;color:#c8922a}
+      h2{font-size:13px;background:#c8922a;color:#fff;padding:6px 10px;margin:20px 0 6px;border-radius:4px}
+      table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:10px}
+      th{background:#f5ede0;padding:5px 7px;text-align:left;font-weight:700;border:1px solid #ddd}
+      td{padding:4px 7px;border:1px solid #eee;vertical-align:top}
+      tr:nth-child(even) td{background:#faf6f0}
+      .ps{page-break-inside:avoid}
+      .meta{text-align:center;color:#888;font-size:10px;margin-bottom:20px}
+      .budget-sum{margin-top:6px;font-weight:700;font-size:11px;text-align:right}
+      .budget-sum span{margin-left:20px}
+      @media print{body{padding:0}h1{margin-top:0}}
+    </style></head><body>
+    <h1>🇸🇾 Club des Syriens — 1er Anniversaire · 28 mars 2026</h1>
+    <p class="meta">Export complet généré le ${new Date().toLocaleString('fr-FR')}</p>
+
+    ${section('✅ Tâches ('+tasks.length+')',
+      ['Titre','Département','Responsable','Statut','Échéance'],
+      tasks.map(t=>[t.fr, window.DEPTS[t.dept]?.fr||t.dept, t.owner||'—', t.status==='منجز'?'✅ Terminée':t.status==='قيد الانجاز'?'🔄 En cours':'⏳ Non commencée', t.date?new Date(t.date).toLocaleDateString('fr-FR'):'—'])
+    )}
+
+    ${section('💰 Budget',
+      ['Description','Catégorie','Type','Montant (€)','Statut'],
+      budget.map(b=>[b.desc,b.cat,b.type,(b.amount||0).toLocaleString('fr-FR')+' €',b.status])
+    )}
+    <p class="budget-sum">
+      <span>Revenus : ${inc.toLocaleString('fr-FR')} €</span>
+      <span>Dépenses : ${exp.toLocaleString('fr-FR')} €</span>
+      <span style="color:${inc-exp>=0?'green':'red'}">Solde : ${(inc-exp).toLocaleString('fr-FR')} €</span>
+    </p>
+
+    ${section('🤝 Bénévoles ('+volunteers.length+')',
+      ['Nom','Rôle / Département','Email','Téléphone','Disponibilité'],
+      volunteers.map(v=>[v.name,v.role||'—',v.email||'—',v.phone||'—',v.avail])
+    )}
+
+    ${section('🏢 Prestataires ('+providers.length+')',
+      ['Nom','Catégorie','Contact','Prix (€)','Statut'],
+      providers.map(p=>[p.name,p.cat,p.contact||'—',(p.price||0).toLocaleString('fr-FR')+' €',p.status])
+    )}
+
+    ${section('👥 Invités ('+guests.length+')',
+      ['Nom','Email','Téléphone','Statut','Ticket'],
+      guests.map(g=>[g.name,g.email||'—',g.phone||'—',g.status,g.ticket])
+    )}
+
+    ${section('🏛️ Lieux ('+venues.length+')',
+      ['Nom','Adresse','Capacité','Prix','Statut'],
+      venues.map(v=>[v.name,v.addr||'—',v.cap?v.cap+' pers':'—',v.price===0?'Gratuit':(v.price||0)+' €',v.status])
+    )}
+
+    ${(repertoire.lieux||[]).length ? section('📒 Répertoire — Lieux ('+repertoire.lieux.length+')',
+      ['Type','Nom','Contact','Adresse','Statut','Commentaires'],
+      repertoire.lieux.map(l=>[l.type||'',l.nom||'',l.contact||'',l.adresse||'',l.statut||'',l.commentaires||''])
+    ) : ''}
+
+    ${(repertoire.artistes||[]).length ? section('🎤 Répertoire — Artistes ('+repertoire.artistes.length+')',
+      ['Type','Nom','Contact','Tarif','Statut','Commentaires'],
+      repertoire.artistes.map(a=>[a.type||'',a.nom||'',a.contact||'',a.tarif||'',a.statut||'',a.commentaires||''])
+    ) : ''}
+
+    ${(repertoire.traiteurs||[]).length ? section('🍽️ Répertoire — Traiteurs ('+repertoire.traiteurs.length+')',
+      ['Nom','Contact','Spécialité','Prix','Statut','Commentaires'],
+      repertoire.traiteurs.map(t=>[t.nom||'',t.contact||'',t.specialite||'',t.prix||'',t.statut||'',t.commentaires||''])
+    ) : ''}
+
+    ${(repertoire.prestataires||[]).length ? section('🔧 Répertoire — Prestataires de services ('+repertoire.prestataires.length+')',
+      ['Nom','Service','Contact','Prix','Statut','Commentaires'],
+      repertoire.prestataires.map(p=>[p.nom||'',p.service||'',p.contact||'',p.prix||'',p.statut||'',p.commentaires||''])
+    ) : ''}
+
+    </body></html>`;
+
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 800);
+    UI.showToast('🖨️ PDF — fenêtre impression ouverte', 'ok');
+  }
+
+  // ── Modal choix export ─────────────────────────────────────────────────────
+  function openModal() {
+    const mo = document.getElementById('mo-export');
+    if (mo) mo.classList.add('open');
+  }
+
+  return { allCSV, allExcel, allPDF, openModal };
+})();
+
 // ═══ APP ═══
 // ─── APP.JS v5 — Point d'entrée ───────────────────────────────────────────────
 
@@ -1760,21 +2020,26 @@ async function init() {
   setInterval(UI.updateCD, 60000);
   UI.showLoading(true);
 
-  // Forcer le rechargement des données initiales
-  // (ignore ce qu'il y a dans Sheets si c'est incomplet)
-  const loaded = await Sync.load();
+  // Afficher la notice JSONBin selon la config
+  const configured = Sync.isConfigured();
+  const noticeEl = document.getElementById('jsonbin-notice');
+  const okEl     = document.getElementById('jsonbin-ok');
+  if (noticeEl) noticeEl.style.display = configured ? 'none' : 'flex';
+  if (okEl)     okEl.style.display     = configured ? 'flex' : 'none';
 
-  // Ne garder les données Sheets QUE si on a bien les 57 tâches
+  // Charger depuis JSONBin si configuré
+  const loaded = configured ? await Sync.load() : false;
+
+  // Seed si pas de données distantes ou JSONBin non configuré
   const hasFullData = window.S.tasks.length >= 57;
-
   if (!loaded || !hasFullData) {
     seedData();
-    await Sync.save();
+    if (configured) await Sync.save();
   }
 
   UI.showLoading(false);
   Render.all();
-  Sync.startAutoRefresh(30000);
+  if (configured) Sync.startAutoRefresh(60000);
 }
 
 document.addEventListener('DOMContentLoaded', init);
