@@ -161,6 +161,13 @@ tr:hover td{background:var(--warm)}
 .export-btn.xl{border-color:#16a34a}.export-btn.xl:hover{background:#f0fdf4}
 .export-btn.csv{border-color:#2563eb}.export-btn.csv:hover{background:#eff6ff}
 
+/* ─── BÉNÉVOLE TASKS PANEL ─── */
+#vol-tasks-panel { animation: fadeIn .2s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+#vol-tbl tr { transition: background .15s; }
+#vol-tbl tr:hover td { background: #fef9f0; }
+#vol-tbl tr[onclick] td:first-child { color: var(--gold); }
+
 /* ─── LOADING OVERLAY ─── */
 #loading-overlay{position:fixed;inset:0;background:rgba(12,12,12,0.9);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:'DM Sans',sans-serif;gap:16px}
 #loading-overlay .spin{width:48px;height:48px;border:3px solid rgba(255,255,255,.2);border-top-color:#e8b84b;border-radius:50%;animation:spin .8s linear infinite}
@@ -277,6 +284,9 @@ tr:hover td{background:var(--warm)}
       <option value="قيد الانجاز">En cours</option>
       <option value="منجز">Terminée</option>
     </select>
+    <select id="ts-vol" onchange="Render.tasks()">
+      <option value="">👤 Tous les bénévoles</option>
+    </select>
   </div>
   <div id="tasks-cont"></div>
 </div>
@@ -317,8 +327,30 @@ tr:hover td{background:var(--warm)}
   </div>
   <div class="card">
     <div class="tw">
-      <table><thead><tr><th>Nom</th><th>Rôle / Département</th><th>Email</th><th>Téléphone</th><th>Disponibilité</th><th>Actions</th></tr></thead>
+      <table><thead><tr>
+        <th>Nom</th><th>Rôle / Département</th><th>Email</th><th>Téléphone</th><th>Disponibilité</th><th>Tâches</th><th>Actions</th>
+      </tr></thead>
       <tbody id="vol-tbl"></tbody></table>
+    </div>
+  </div>
+
+  <!-- Panneau tâches bénévole -->
+  <div id="vol-tasks-panel" style="display:none;margin-top:18px">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div class="ct" style="margin-bottom:0" id="vol-tasks-title">📋 Tâches de —</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div id="vol-tasks-stats" style="font-size:13px;color:var(--muted)"></div>
+          <button class="btn btn-out btn-sm" onclick="document.getElementById('vol-tasks-panel').style.display='none'">✕ Fermer</button>
+        </div>
+      </div>
+      <div id="vol-tasks-progress" style="margin-bottom:14px"></div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Tâche</th><th>Département</th><th>Responsable</th><th>Échéance</th><th>Statut</th><th>Action</th></tr></thead>
+          <tbody id="vol-tasks-tbl"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -1181,14 +1213,28 @@ const Render = (() => {
         df.appendChild(o);
       });
     }
+    // Peupler le filtre bénévole dynamiquement
+    const vf = document.getElementById('ts-vol');
+    if (vf && vf.options.length <= 1) {
+      const names = [...new Set(
+        window.S.volunteers.map(v => v.name).filter(Boolean)
+      )].sort();
+      names.forEach(n => {
+        const o = document.createElement('option');
+        o.value = n; o.textContent = '👤 ' + n;
+        vf.appendChild(o);
+      });
+    }
     const q   = (document.getElementById('ts-q')?.value || '').toLowerCase();
     const dpt = document.getElementById('ts-dept')?.value || '';
     const st  = document.getElementById('ts-status')?.value || '';
+    const vol = document.getElementById('ts-vol')?.value || '';
 
     const filtered = window.S.tasks.filter(t =>
-      (!q  || (t.fr.toLowerCase().includes(q) || t.ar.includes(q) || (t.owner||'').toLowerCase().includes(q))) &&
+      (!q  || (t.fr.toLowerCase().includes(q) || t.ar.includes(q) || (t.owner||'').toLowerCase().includes(q) || (t.vols||'').toLowerCase().includes(q))) &&
       (!dpt || t.dept === dpt) &&
-      (!st  || t.status === st)
+      (!st  || t.status === st) &&
+      (!vol || (t.owner||'').toLowerCase() === vol.toLowerCase() || (t.vols||'').toLowerCase().includes(vol.toLowerCase()))
     );
 
     const grouped = {};
@@ -1215,8 +1261,14 @@ const Render = (() => {
             ${ts.map(t => `<tr>
               <td><strong>${t.fr}</strong>${t.notes ? '<br><span style="font-size:11px;color:var(--muted)">'+t.notes+'</span>' : ''}</td>
               <td><span class="ar">${t.ar}</span></td>
-              <td>${t.owner || '—'}</td>
-              <td style="font-size:12px;color:var(--muted)">${t.vols || '—'}</td>
+              <td>${t.owner
+                ? `<span style="cursor:pointer;color:var(--gold);font-weight:600" onclick="Render.goToVol('${t.owner.replace(/'/g,'')}')" title="Voir tâches de ${t.owner.replace(/'/g,'')}">${t.owner} ↗</span>`
+                : '—'}</td>
+              <td style="font-size:12px;color:var(--muted)">${t.vols
+                ? t.vols.split(',').map(n => n.trim()).filter(Boolean).map(n =>
+                    `<span style="cursor:pointer;color:var(--blue)" onclick="Render.goToVol('${n.replace(/'/g,'')}')" title="Voir tâches de ${n.replace(/'/g,'')}">${n}</span>`
+                  ).join(', ')
+                : '—'}</td>
               <td>${t.date ? fmtD(t.date) : '—'}</td>
               <td><span class="b ${bCls(t.status)}">${sFr(t.status)}</span></td>
               <td><div class="actb">
@@ -1276,15 +1328,36 @@ const Render = (() => {
   // ── BÉNÉVOLES ─────────────────────────────────────────────────────────────
   function volunteers() {
     const ac = { Disponible:'b-done', Partiellement:'b-prog', 'Non disponible':'b-canc' };
-    document.getElementById('vol-tbl').innerHTML = window.S.volunteers.map(v => `<tr>
-      <td><strong>${v.name}</strong></td><td>${v.role||'—'}</td>
-      <td>${v.email||'—'}</td><td>${v.phone||'—'}</td>
-      <td><span class="b ${ac[v.avail]||'b-todo'}">${v.avail}</span></td>
-      <td><div class="actb">
-        <button class="icb" onclick="Forms.editVol(${v.id})">✏️</button>
-        <button class="icb del" onclick="delItem('volunteers',${v.id})">🗑️</button>
-      </div></td>
-    </tr>`).join('');
+    document.getElementById('vol-tbl').innerHTML = window.S.volunteers.map(v => {
+      // Calcul tâches pour ce bénévole
+      const vtasks = window.S.tasks.filter(t =>
+        (t.owner||'').toLowerCase() === v.name.toLowerCase() ||
+        (t.vols||'').toLowerCase().includes(v.name.toLowerCase())
+      );
+      const done  = vtasks.filter(t => t.status === 'منجز').length;
+      const prog  = vtasks.filter(t => t.status === 'قيد الانجاز').length;
+      const total = vtasks.length;
+      const pct   = total > 0 ? Math.round(done / total * 100) : 0;
+      const taskBadge = total > 0
+        ? `<div style="display:flex;align-items:center;gap:6px;min-width:120px">
+            <div style="flex:1;background:var(--border);border-radius:4px;height:6px;overflow:hidden">
+              <div style="width:${pct}%;height:100%;background:var(--gold);border-radius:4px"></div>
+            </div>
+            <span style="font-size:11px;color:var(--muted);white-space:nowrap">${done}/${total}</span>
+          </div>`
+        : '<span style="font-size:11px;color:var(--muted)">—</span>';
+      return `<tr style="cursor:pointer" onclick="Render.showVolTasks(${v.id})" title="Voir les tâches de ${v.name}">
+        <td><strong>${v.name}</strong> <span style="font-size:11px;color:var(--gold)">↗</span></td>
+        <td>${v.role||'—'}</td>
+        <td>${v.email||'—'}</td><td>${v.phone||'—'}</td>
+        <td><span class="b ${ac[v.avail]||'b-todo'}">${v.avail}</span></td>
+        <td>${taskBadge}</td>
+        <td onclick="event.stopPropagation()"><div class="actb">
+          <button class="icb" onclick="Forms.editVol(${v.id})">✏️</button>
+          <button class="icb del" onclick="delItem('volunteers',${v.id})">🗑️</button>
+        </div></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">Aucun bénévole</td></tr>';
   }
 
   // ── PRESTATAIRES ──────────────────────────────────────────────────────────
@@ -1372,7 +1445,80 @@ const Render = (() => {
     if (typeof Rep !== "undefined") Rep.render();
   }
 
-  return { all, dashboard, tasks, budget, venues, volunteers, providers, guests, badges, progChecklist, tglPc };
+
+  // ── PANNEAU TÂCHES D'UN BÉNÉVOLE ─────────────────────────────────────────
+  function showVolTasks(volId) {
+    const v = window.S.volunteers.find(x => x.id === volId);
+    if (!v) return;
+
+    const vtasks = window.S.tasks.filter(t =>
+      (t.owner||'').toLowerCase() === v.name.toLowerCase() ||
+      (t.vols||'').toLowerCase().includes(v.name.toLowerCase())
+    );
+
+    const done  = vtasks.filter(t => t.status === 'منجز').length;
+    const prog  = vtasks.filter(t => t.status === 'قيد الانجاز').length;
+    const todo  = vtasks.filter(t => t.status === 'غير منجز').length;
+    const total = vtasks.length;
+    const pct   = total > 0 ? Math.round(done / total * 100) : 0;
+
+    document.getElementById('vol-tasks-title').textContent = '📋 Tâches de ' + v.name;
+    document.getElementById('vol-tasks-stats').innerHTML =
+      `<span style="color:var(--green);font-weight:700">${done} terminées</span> · ` +
+      `<span style="color:var(--blue);font-weight:700">${prog} en cours</span> · ` +
+      `<span style="color:var(--muted)">${todo} à faire</span> · ` +
+      `<strong>${total} total</strong>`;
+
+    // Barre de progression globale
+    document.getElementById('vol-tasks-progress').innerHTML = total > 0 ? `
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="flex:1;background:var(--border);border-radius:6px;height:10px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:var(--gold);border-radius:6px;transition:width .5s"></div>
+        </div>
+        <span style="font-size:13px;font-weight:700;color:var(--gold);white-space:nowrap">${pct}% terminé</span>
+      </div>` : '<p style="color:var(--muted);font-size:13px">Aucune tâche assignée.</p>';
+
+    // Tableau des tâches triées : en cours → à faire → terminées
+    const sorted = [...vtasks].sort((a,b) => {
+      const order = {'قيد الانجاز':0,'غير منجز':1,'منجز':2};
+      return (order[a.status]||1) - (order[b.status]||1);
+    });
+
+    document.getElementById('vol-tasks-tbl').innerHTML = sorted.length === 0
+      ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">Aucune tâche assignée à ' + v.name + '</td></tr>'
+      : sorted.map(t => `<tr>
+          <td>
+            <strong>${t.fr}</strong>
+            ${t.notes ? '<br><span style="font-size:11px;color:var(--muted)">'+t.notes+'</span>' : ''}
+          </td>
+          <td style="font-size:12px">${window.DEPTS[t.dept]?.icon||''} ${window.DEPTS[t.dept]?.fr||t.dept}</td>
+          <td style="font-size:12px">${t.owner||'—'} ${(t.vols||'').includes(v.name) && t.owner !== v.name ? '<span style="font-size:10px;color:var(--muted)">(bénévole)</span>' : ''}</td>
+          <td style="font-size:12px">${t.date ? fmtD(t.date) : '—'}</td>
+          <td><span class="b ${bCls(t.status)}">${sFr(t.status)}</span></td>
+          <td>
+            <button class="icb" onclick="cycleStatus(${t.id});Render.showVolTasks(${volId})" title="Changer statut">🔄</button>
+          </td>
+        </tr>`).join('');
+
+    const panel = document.getElementById('vol-tasks-panel');
+    panel.style.display = 'block';
+    panel.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+
+  // ── Navigation rapide vers un bénévole depuis n'importe où ───────────────
+  function goToVol(name) {
+    // Naviguer vers l'onglet bénévoles
+    const navEl = document.querySelector('.ni[data-s="volunteers"]');
+    if (navEl) UI.nav(navEl);
+    // Trouver le bénévole par nom et afficher ses tâches
+    const vol = window.S.volunteers.find(v => v.name.toLowerCase() === name.toLowerCase());
+    if (vol) {
+      setTimeout(() => showVolTasks(vol.id), 100);
+    }
+  }
+
+  return { all, dashboard, tasks, budget, venues, volunteers, providers, guests, badges, progChecklist, tglPc, showVolTasks, goToVol };
 })();
 
 // ── Cycle statut rapide ────────────────────────────────────────────────────────
